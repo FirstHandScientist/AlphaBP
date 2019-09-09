@@ -1,4 +1,4 @@
-\documentclass[conference]{IEEEtran}
+\documentclass[conference,onecolumn]{IEEEtran}
 \IEEEoverridecommandlockouts
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
@@ -60,15 +60,17 @@
 
 \begin{document}
 \title{$\alpha$ Belief Propagation as Fully Factorized Approximation}
-\author{
-  \IEEEauthorblockN{
-    Dong Liu$^{1}$, Nima N. Moghadam$^{2}$, Lars~K. Rasmussen$^{1}$, Jinliang Huang$^{2}$, Saikat Chatterjee$^{1}$}
+\author{First Hand Scientists\\
+e-mail: doli@kth.se}
+% \author{
+%   \IEEEauthorblockN{
+%     Dong Liu$^{1}$, Nima N. Moghadam$^{2}$, Lars~K. Rasmussen$^{1}$, Jinliang Huang$^{2}$, Saikat Chatterjee$^{1}$}
 
-  \IEEEauthorblockA {$^{1}$ KTH Royal Institute of Technology, Stockholm, Sweden. }
-  \IEEEauthorblockA {$^{2}$ Huawei Technologies Sweden AB, Stockholm, Sweden.}
-  \IEEEauthorblockA{
-    e-mail: \{doli, lkra, sach\}@kth.se, \{nima.najari.moghadam1, jinliang.huang\}@huawei.com}
-}
+%   \IEEEauthorblockA {$^{1}$ KTH Royal Institute of Technology, Stockholm, Sweden. }
+%   \IEEEauthorblockA {$^{2}$ Huawei Technologies Sweden AB, Stockholm, Sweden.}
+%   \IEEEauthorblockA{
+%     e-mail: \{doli, lkra, sach\}@kth.se, \{nima.najari.moghadam1, jinliang.huang\}@huawei.com}
+% }
 
 
 
@@ -203,11 +205,23 @@ According to the stationary point equivalence Theorem in \cite{divergence-measur
     \vspace{0.1cm}
   \end{centering}
 \end{figure}
-We introduce a pairwise Markov random field (MRF) $p(\bm{x})$ to explain our algorithm. Variable $\bm{x} \in \Aa^N$, where $\Aa$ is a discrete finite set or subset of $\RR$ and $N$ is a positive integer. We factorize the distribution $p(\bm{x})$ as
+We introduce a pairwise Markov random field (MRF) $p(\bm{x})$ to
+explain our algorithm. Variable $\bm{x} := \left\{ x_1, x_2, \cdots,
+  x_N \right\}$, where $x_i \in \Aa$ is a discrete finite set or subset of
+$\RR$, and $N$ is a positive integer.
+An undirected graphical model, known as Markov random field, defines a
+family of joint probability distributions over $\bm{x}$ by associating
+its index set with the vertex set $\Vv$ of undirected graph
+$\Gg:=(\Vv, \Ee)$. The graph contains edges $\Ee \subset \Vv \times
+\Vv$, where a pair of $(v, u) \in \Ee$ if and only if nodes $v$ and
+$u$ are connected by a edge. For a clique $\Cc$ of the graph, let
+$\phi_{\Cc}: \Aa^{\abs{\Cc}} \rightarrow (0, \infty)$ be a potential
+function of vector $\bm{x}_{\Cc}:=\left\{ x_v| v\in \Cc \right\}$. Let
+us then write the joint distribution of $\bm{x}$ as
 \begin{equation}\label{eq:mrf}
-  p(\bm{x}) \propto \prod_{{i=1}}^{N} f_i(x_i) \prod_{k \in \Kk} t_k(x_i, x_j),
+  p(\bm{x}) \propto \prod_{{v\in \Vv}} \phi_v(x_) \prod_{(v,u) \in \Ee} \phi_{vu}(x_v, x_u),
 \end{equation}
-where $f_i$ is the \textit{singleton factor}, $t_k$ is \textit{pairwise factor}, $\Kk$ is the index set of all pairwise factors, and $\propto$ denotes the fact that the only difference between two sides of $\propto$ is a constant factor.
+where $\propto$ denotes the fact that the only difference between two sides of $\propto$ is a constant factor.
 
 The factor graph representing \autoref{eq:mrf} is shown in \autoref{fig:factor-graph}. In the figure, $\text{Pa}[i]$ is the index set of pairwise factors connecting to variable node $x_i$, i.e. $\text{Pa}[i]$ is subset of $\Kk$, $\backslash$ denotes exclusion. $\Tt_{\text{Pa}[i]\backslash k}$ is the product of all pairwise factors connecting to $x_i$ except for $t_k$:
 \begin{equation}
@@ -229,63 +243,72 @@ In this section, we will show why $\alpha$-BP as a message-passing algorithm can
 \subsubsection{Fully Factorized Surrogate}
 Now we formulate a surrogate distribution as
 \begin{equation}
-  q(\bm{x}) \propto \prod_{{i=1}}^{N} \tilde{f}_i(x_i) \prod_{k\in \Kk} \tilde{t}_k(x_i, x_j), \bm{x} \in \Aa^N
+    q(\bm{x}) \propto \prod_{{v\in \Vv}} \tilde{\phi}_v(x_) \prod_{(v,u) \in \Ee} \tilde{\phi}_{vu}(x_v, x_u),
 \end{equation}
-to approximate $p(\bm{x})$. The surrogate distribution would be used to estimate inference problems of $p(\bm{x})$. We further assume that $q(\bm{x})$ can be fully factorized, which means that $\tilde{t}_k(x_i, x_j)$ can be factorized as two independent functions of $x_i, x_j$ respectively. We denote this factorization as
+to approximate $p(\bm{x})$. The surrogate distribution would be used to estimate inference problems of $p(\bm{x})$. We further assume that $q(\bm{x})$ can be fully factorized, which means that $\tilde{\phi}_{v,u}(x_v, x_u)$ can be factorized as two independent functions of $x_v, x_u$ respectively. We denote this factorization as
 \begin{equation}
-  \tilde{t}_k(x_i, x_j) = m_{k\rightarrow i}(x_i) m_{k\rightarrow j}(x_j).
+  \tilde{\phi}_{v,u}(x_v, x_u) := m_{uv}(x_v) m_{vu}(x_u).
 \end{equation}
-We use the notation $m_{k\rightarrow i}(x_i)$ to denote the factor as a function of $x_i$ due to the intuitive fact that $m_{k\rightarrow i}$ is also the message from the factor $t_k(x_i, x_j)$ to variable node $x_i$. Similarly we have factor $m_{k\rightarrow j}(x_j)$. Then the marginal can be formulated straightforwardly as
+We use the notation $m_{uv}(x_v)$ to denote the factor as a function of $x_v$ due to the intuitive fact that $m_{uv}$ is also the message from the factor $\phi_{uv}(x_u, x_v)$ to variable node $x_v$. Similarly we have factor $m_{vu}(x_u)$. Then the marginal can be formulated straightforwardly as
 \begin{equation}
-  q_i(x_i) \propto \tilde{f}_i(x_i) \prod_{k\in \text{Pa}[i]} m_{k\rightarrow i}(x_i).
+  q_v(x_v) \propto \tilde{\phi}_v(x_v) \prod_{w\in \Nn(v)} m_{wv}(x_v).
 \end{equation}
 
 \subsubsection{Local $\alpha$-Divergence Minimization}
 
 Now, we are going to use the heuristic scheme as in \autoref{eq:fixed-point-iter} to minimize the information loss by using tractable $q(\bm{x})$ to represent $p(\bm{x})$. The information loss is measured by $\alpha$-divergence $\Dd_{\alpha}(p(\bm{x}) \| q(\bm{x}))$.
 
-We do factor-wise refinement to update the factors of $q(\bm{x})$ such that $q(\bm{x})$ approaches $p(\bm{x})$ asymptotically similar to \cite{divergence-measures-and-message-passing,Minka:2001:EPA:647235.720257}. Without losing generality, we begin to refine factor $\tilde{t}_k(x_i, x_j)$. Define $q^{\backslash k}(\bm{x})$ as all other factors except for $\tilde{t}_k(x_i, x_j)$
+We do factor-wise refinement to update the factors of $q(\bm{x})$ such that $q(\bm{x})$ approaches $p(\bm{x})$ asymptotically similar to \cite{divergence-measures-and-message-passing,Minka:2001:EPA:647235.720257}. Without losing generality, we begin to refine factor $\tilde{\phi}_{uv}(x_u, x_v)$. Define $q^{\backslash (u,v)}(\bm{x})$ as all other factors except for $\tilde{\phi}_{uv}(x_u, x_v)$
 \begin{equation}
-  q^{\backslash k}(\bm{x}) = q(\bm{x})/\tilde{t}_k(x_i, x_j) \propto \prod_{{i}} \tilde{f}_i(x_i) \prod_{n\in \Kk \backslash k} \tilde{t}_n(x_i, x_j).
+  q^{\backslash k}(\bm{x}) = q(\bm{x})/\tilde{\phi}_{uv}(x_u, x_v)
+  \propto \prod_{{v\in \Vv}} \tilde{\phi}_v(x_) \prod_{(v,u) \in
+    \Ee\backslash (u,v)} \tilde{\phi}_{vu}(x_v, x_u).
 \end{equation}
-Similarly, we have $p^{\backslash k}(\bm{x})$ as all other factors except for $t_k(x_i, x_j)$. Assume that we already have had $q^{\backslash k}(\bm{x})$ as a good approximation of $p^{\backslash k}(\bm{x})$, i.e. $q^{\backslash k}(\bm{x}) \simeq p^{\backslash k}(\bm{x})$, it is $\tilde{t}_k(x_i, x_j)$ that remains to be refined. 
-Then the problem $\uargmin{\tilde{t}_k^{\text{new}}} \Dd_{\alpha}\left(  p^{\backslash k}t_k\|q^{\backslash k}\tilde{t}_k^{\text{new}}\right)$ becomes \vspace{-0.3cm}
+Similarly, we have $p^{\backslash (u,v)}(\bm{x})$ as all other factors except for ${\phi}_{uv}(x_u, x_v)$. Assume that we already have had $q^{\backslash (u,v)}(\bm{x})$ as a good approximation of $p^{\backslash (u,v)}(\bm{x})$, i.e. $q^{\backslash (u,v)}(\bm{x}) \simeq p^{\backslash (u,v)}(\bm{x})$, it is $\tilde{\phi}_{uv}(x_u, x_v)$ that remains to be refined. 
+Then the problem $\uargmin{\tilde{\phi}_{uv}^{\mathrm{new}}} \Dd_{\alpha}\left(  p^{\backslash (uv)}\phi_{uv}\|q^{\backslash (u,v)}\tilde{\phi}_{uv}^{\mathrm{new}}\right)$ becomes \vspace{-0.3cm}
 \begin{equation}
-  \uargmin{\tilde{t}_k^{\text{new}}(x_i, x_j)} \Dd_{\alpha}\left(  q^{\backslash k}(\bm{x}) t_k(x_i, x_j)\|q^{\backslash k}(\bm{x}) \tilde{t}_k^{\text{new}}(x_i, x_j) \right),
+  \uargmin{\tilde{\phi}_{uv}^{\mathrm{new}}(x_u, x_v)}
+  \Dd_{\alpha}\left( q^{\backslash (u,v)}(\bm{x}){\phi}_{uv}(x_u, x_v)
+    \|q^{\backslash (u,v)}(\bm{x})\tilde{\phi}_{uv}^{\mathrm{new}}(x_u, x_v) \right),
 \end{equation}
-which searches for new factor $\tilde{t}_k^{\text{new}}$ such the above divergence is minimized.
+which searches for new factor $\tilde{\phi}_{uv}^{\mathrm{new}}(x_u, x_v)$ such the above divergence is minimized.
 Using \autoref{eq:fixed-point-iter}, the above problem is equivalent to
 \begin{align}\label{eq:update-rule}
-  &q^{\backslash k}(\bm{x}) \tilde{t}_k^{\text{new}}(x_i, x_j) \nonumber\\
-  &\propto \text{proj}\left[ \left(q^{\backslash k}(\bm{x}) t_k(x_i, x_j)  \right)^{\alpha} \left(q^{\backslash k}(\bm{x}) \tilde{t}_k(x_i, x_j)  \right)^{1-\alpha} \right] \nonumber \\
-  & \propto \text{proj}\left[ q^{\backslash k}(\bm{x}) t_k(x_i, x_j)^{\alpha} \tilde{t}_k(x_i, x_j)^{1-\alpha} \right].
+  &q^{\backslash (u,v)}(\bm{x})\tilde{\phi}_{uv}^{\mathrm{new}}(x_u, x_v)  \nonumber\\
+  &\propto \text{proj}\left[ \left( q^{\backslash (u,v)}(\bm{x}){\phi}_{uv}(x_u, x_v) \right)^{\alpha} \left(q^{\backslash (u,v)}(\bm{x})\tilde{\phi}_{uv}(x_u, x_v)  \right)^{1-\alpha} \right] \nonumber \\
+  & \propto \text{proj}\left[ q^{\backslash
+    (u,v)}(\bm{x}){\phi}_{uv}(x_u, x_v)^{\alpha} \tilde{\phi}_{uv}(x_u, x_v)^{1-\alpha} \right].
 \end{align}
 
-Let us refine one message per time in factor $\tilde{t}_k$. Without lose of generality, we update $m_{k\rightarrow i}$ and denote
+Let us refine one message per time on edge $(u,v)$. Without lose of generality, we update $m_{uv}$ and denote
 \begin{equation}
-  \tilde{t}_k^{\text{new}}(x_i, x_j) = m_{k\rightarrow i}^{\text{new}}(x_i) m_{k\rightarrow j}(x_j).
+  \tilde{\phi}_{uv}^{\mathrm{new}}(x_u, x_v) = m_{uv}^{\mathrm{new}}(x_v) m_{vu}(x_u).
 \end{equation}
 Since KL-projection to a fully factorized distribution reduces to matching the marginals, \autoref{eq:update-rule} is reduced to
 \begin{equation}\label{eq:message-update}
-  \sum_{\bm{x}\backslash x_i} q^{\backslash k}(\bm{x}) \tilde{t}_k^{\text{new}}(x_i, x_j) \propto \sum_{\bm{x}\backslash x_i} q^{\backslash k}(\bm{x}) t_k(x_i, x_j)^{\alpha} \tilde{t}_k(x_i, x_j)^{1-\alpha}.
+  \sum_{\bm{x}\backslash x_v} q^{\backslash (u,v)}(\bm{x}) \tilde{\phi}_{uv}^{\mathrm{new}}(x_u, x_v) \propto \sum_{\bm{x}\backslash x_v} q^{\backslash (u,v)}(\bm{x}) \phi_{uv}(x_u, x_v)^{\alpha} \tilde{\phi}_{uv}(x_u, x_v)^{1-\alpha}.
 \end{equation}
 We use summation here. But it should be replaced by integral if $\Aa$ is a continuous set.
 Solving \autoref{eq:message-update} gives the message passing rule as
-\begin{align}\label{eq:message-rule}
-  {m}^{\text{new}}_{k\rightarrow i}(x_i) \propto & \bigg[ \sum_{x_j} t_k(x_i, x_j)^{\alpha} {m}_{k\rightarrow j}(x_j)^{1-\alpha} m_{j \rightarrow k}(x_j) \bigg] \nonumber \\
-                                                 &\cdot m_{k\rightarrow i}(x_i)^{1-\alpha},
-\end{align}
-where
-\begin{equation}
-  m_{j \rightarrow k}(x_j) = \tilde{f}_j(x_j) \prod_{n \in \text{Pa}[j] \backslash k} m_{n \rightarrow j}(x_j).
+\begin{equation}\label{eq:message-rule}
+  {m}^{\text{new}}_{uv}(x_v) \propto & m_{uv}(x_v)^{1-\alpha} \bigg[
+  \sum_{x_u} \phi_{uv}(x_u, x_v)^{\alpha} {m}_{vu}(x_u)^{1-\alpha}
+  \tilde{\phi}_u(x_u) \prod_{w\in \Nn(u)\backslash v}\phi_{wu}(x_w,x_u) \bigg].
 \end{equation}
-Similarly, the message from $t_k$ to $x_j$, $m_{k \rightarrow j}(x_j)$, can be updated in similar way.
 
-As for the singleton factor $\tilde{f}_i(x_i)$, we can do the refinement procedure on $\tilde{f}_i(x_i)$ in the same way as we have done for $\tilde{t}_k(x_i, x_j)$. This gives us the update rule of $\tilde{f}_i(x_i)$ as
+As for the singleton factor $\tilde{\phi}_v(x_v)$, we can do the refinement procedure on $\tilde{\phi}_v(x_v)$ in the same way as we have done for $\tilde{\phi}_{uv}(x_u, x_v)$. This gives us the update rule of $\tilde{\phi}_v(x_v)$ as
 \begin{equation}\label{eq:fix-factor-update}
-  \tilde{f}_i^{\text{new}}(x_i) \propto f_i(x_i)^{\alpha} \tilde{f}_i(x_i)^{1-\alpha},
+  \tilde{\phi}_v^{\text{new}}(x_v) \propto \phi_v(x_v)^{\alpha} \tilde{\phi}_v(x_v)^{1-\alpha},
 \end{equation}
-which is the belief from factor $f_i(x_i)$ to variable $x_i$. Note, if we initialize $\tilde{f}_i(x_i) = f_i(x_i)$, then it remains the same in all iterations.
+which is the belief from factor $f_v(x_v)$ to variable $x_v$. Note, if
+we initialize $\tilde{\phi}_v(x_v) = \phi_v(x_v)$, then it remains the
+same in all iterations, which makes
+\begin{equation}\label{eq:message-rule}
+  {m}^{\text{new}}_{uv}(x_v) \propto & m_{uv}(x_v)^{1-\alpha} \bigg[
+  \sum_{x_u} \phi_{uv}(x_u, x_v)^{\alpha} {m}_{vu}(x_u)^{1-\alpha}
+  {\phi}_u(x_u) \prod_{w\in \Nn(u)\backslash v}\phi_{wu}(x_w,x_u) \bigg].
+\end{equation}
+
 
 
 \subsection{Remarks on $\alpha$-BP}\label{subsec:remark}
@@ -316,7 +339,8 @@ which is the belief from factor $f_i(x_i)$ to variable $x_i$. Note, if we initia
 
 As discussed in Section~\ref{sec:preliminary}, $KL(p\|q)$ is the special case of $\Dd_{\alpha}(p\|q)$ when $\alpha \rightarrow 1$. When applying $\alpha=1$ to \autoref{eq:message-rule}, it gives
 \begin{equation}
-  {m}^{\text{new}}_{k\rightarrow i}(x_i) \propto \sum_{x_j} t_k(x_i, x_j) m_{j \rightarrow k}(x_j),
+   {m}^{\text{new}}_{uv}(x_v) \propto & \bigg[
+  \sum_{x_u} \phi_{uv}(x_u, x_v) {\phi}_u(x_u) \prod_{w\in \Nn(u)\backslash v}\phi_{wu}(x_w,x_u) \bigg],
 \end{equation}
 which is exactly the messages of BP in Chapter~$8$ of \cite{Bishop:2006:PRM:1162264}. From this point of view, $\alpha$-BP generalizes BP.
 
@@ -342,81 +366,6 @@ We summarize the method into the pseudo-code in Algorithm~\autoref{alg:alphaBP}.
   \end{algorithmic} 
 \end{algorithm}
 
-\section{Experimental Results}
-In this section, we report numerical results on the $\alpha$-BP. It is well known that performance of BP and its variants deteriorate significantly when loops appear in factor graph. We would like to see if $\alpha$-BP could relief the deterioration brought by loops in inference. Thus we firstly test the performance of $\alpha$-BP for MAP inference in a MRF with $\Aa=\{-1,1\}$ (Ising model), where we adjust how loopy its corresponding factor graph is.
-
-In addition, we apply the $\alpha$-BP to a MIMO detection problem, to explore its performance in comparison with (loopy) BP and minimum mean square error (MMSE). At the end, the prior factor trick is used according to discussion in Subsection~\ref{subsec:remark}. This turns out to be MAP inference problem as well.
-
-For the MAP inference, the most probable estimation by $\alpha$-BP, $\hat{\bm{x}}=[\hat{x}_1, \cdots, \hat{x}_N]$, is obtained by
-\begin{align}
-  \hat{x}_{i} = \uargmax{x_i}\tilde{f}_i(x_i) \prod_{k\in \text{Pa}[i]} m_{k\rightarrow i}(x_i), x_i \in \Aa.
-\end{align}
-
-
-
-\subsection{$\alpha$-BP on binary pairwise MRF}
-\begin{figure*}[!ht]
-  \begin{subfigure}{.339\textwidth}
-    \captionsetup[subfigure]{justification=centering}
-    \centering
-    \includegraphics[width=1\linewidth]{figures/MAPacc_edgeP_sum_crop.pdf}
-    \vspace{-0.6cm}
-    \caption{Mismatch between MAP and $\alpha$-BP on\\ binary MRF}
-    \label{fig:mismatch}
-  \end{subfigure}
-  \begin{subfigure}{.33\textwidth}
-    \includegraphics[width=1\linewidth]{figures/alpha_compare_crop.pdf}
-    \vspace{-0.6cm}
-    \caption{MIMO detection: $\alpha$-BP without prior\\~}\label{fig:mimo_a}
-  \end{subfigure}
-  \begin{subfigure}{.33\textwidth}
-    \includegraphics[width=1\linewidth]{figures/prior_mmse_alpha_compare_crop.pdf}
-    \vspace{-0.6cm}
-    \caption{MIMO detection: $\alpha$-BP with prior\\~}\label{fig:mimo_b}
-  \end{subfigure}
-  \vspace{-0.3cm}
-  \caption{Numerical Results of $\alpha$-BP on: (a) binary MRF, (b) and (c) MIMO detection.}
-  % \caption{MIMO detection in Comparison with MMSE and MAP: (a). $\alpha$-BP without prior; (b). $\alpha$-BP with prior from MMSE.}
-  \vspace{0.3cm}
-  \label{fig:mimo_detection}
-\end{figure*}
-With $t_k(x_i, x_j) = e^{-2J_{i,j}x_i x_j}$ and $f_i(x_i) = e^{-J_{i,i}-b_i x_i}$, \autoref{eq:mrf} can be reformulated as
-\begin{equation}
-  p(\bm{x}) \propto \exp\{-\bm{x}^{T}\bm{J}\bm{x} - \bm{b}^{T}\bm{x}\}, \bm{x} \in \Aa^N,
-\end{equation}
-where $\bm{x}^{T}$ is transform of $\bm{x}$, $J_{i,j}$ is element of symmetrix matrix $\bm{J}$ at $i$-th row and $j$-th column, $\bm{b} = [b_1, \cdots, b_N]^T$.
-
-
-For this experiment, we set $\Aa = \left\{ -1, 1 \right\}$ and $N=9$. Bias $\bm{b}$ is sampled from Gaussian, ${b_i} \sim \Nn(0, (1/4)^2)$. Since $\bm{J}$ decides the loopy level of its corresponding factor graph, we use the Erdos-Rényi model \cite{erdos1960} to construct its connectivity. Namely, an element of $\bm{J}$ is set as non-zero, $ {J}_{i,j} = {J}_{j,i} \sim \Nn(0,1)$, with an \textit{Edge Probability}. Otherwise, ${J}_{i, j} = {J}_{j,i} = 0$, which means this is no connection between variable node $x_i$ and $x_j$. For each test value of Edge Probability, $5000$ binary MRF models are generated randomly and mismatch between $\argmax_{\bm{x}} p(\bm{x})$ and $\left\{ \bm{x}|\argmax_{x_i}q_i(x_i) \right\}$ is computed in each realization. The results are shown in \autoref{fig:mismatch}. As the Edge Probability increases, graphs become loopier and $\alpha$-BP (also BP) has more mismatch with MAP inference. In general, $\alpha$-BP with $\alpha > 1$ underperforms BP, and $\alpha$-BP with $\alpha < 1$ outperforms BP. For $\alpha=0.2, 0.4, 0.6$, $\alpha$-BP stops deteriorating for Edge Probability increasing over $0.35$, while BP continues giving even worse approximations.
-
-
-\subsection{Application to MIMO Detection}
-
-For MIMO system, the observation $\bm{y}$ is a linear function of channel $\bm{H}\in \RR^{M\times N}$ when unknown signal $\bm{x}$ need to be estimated:
-\begin{equation}\label{eq:linear-model}
-  \bm{y} = \bm{H} \bm{x} + \bm{e}, \bm{x} \in \Aa^N,
-\end{equation}
-where $\bm{e}$ is  noise modeled as Gaussian noise $ \bm{e} \sim \Nn\left( \bm{0}, \sigma^2_{w} \bm{I} \right)$. Here $\bm{I}$ is unitary matrix. In this case, the posterior of $\bm{x}$ can be written as:
-\begin{align}\label{eq:true-posterior}
-  &p(\bm{x}|\bm{y}) \propto \exp\left\{ - \frac{1}{2\sigma_w^2} \norm{\bm{Hx} - \bm{y}}^2 \right\} \nonumber \\
-  & = \exp\left\{ - \frac{1}{2\sigma_w^2}\left[ \bm{x}^{T}\bm{H}^{T}\bm{H}\bm{x} - 2 \bm{y}^T\bm{H}\bm{x}  + \bm{y^T}\bm{y}  \right] \right\}
-\end{align}
-where $\norm{\cdot}$ is the Euclidean norm. Denote $\bm{S} = \bm{H}^T\bm{H}$, $\bm{h}_i$ as the $i$-th column of $\bm{H}$, and apply
-\begin{align}
-  f_{{i}}(x_i) &= \exp\left\{- \frac{S_{i,i} x_i^2}{2 \sigma_w^2} + \frac{\langle {\bm{h}_i, \bm{y}}\rangle x_i}{\sigma_w^2} \right\}, \\
-  t_{{k}}(x_i, x_j) &= \exp\left\{ -\frac{x_i S_{i,j} x_j}{\sigma_w^2} \right\}.
-\end{align}
-Then the \autoref{eq:true-posterior} is equivalent to \autoref{eq:mrf}. We set $\Aa = \left\{ -1, 1 \right\}$, $N = 8$, and $\bm{H}\in \RR^{8 \times 8}$ sampled from Gaussian.
-
-We test the application of $\alpha$-BP to the MIMO signal detection numerically. We run the $\alpha$-BP, without prior trick in \autoref{fig:mimo_a} and with prior in \autoref{fig:mimo_b} (legend ``$\alpha$-BP$+$MMSE'') from MMSE. The reference results of MMSE and MAP inference are also reported under the same conditions. MMSE estimator depends on Gaussian posterior $\Nn(\hat{\bm{\mu}}, \hat{\bm{\Sigma}})$ with $\hat{\bm{\mu}} = (\bm{H}^{T}\bm{H} + \sigma_w^2 \bm{I})^{-1}\bm{H}^{T}\bm{y}$ and $\hat{\bm{\Sigma}} = (\bm{H}^{T}\bm{H} + \sigma_w^2 \bm{I})^{-1}\sigma_w$. Detection of MMSE is carried out by $\argmin_{x_i\in \Aa}\abs{x_i-\hat{\mu}_i}$.% The prior belief used in ``$\alpha$-BP$+$MMSE'' is $\hat{p}(x_i)=\Nn(\hat{{\mu}}_i, \hat{\bm{\Sigma}}_{i,i})$.
-
-\autoref{fig:mimo_a} shows that BP even underperforms MMSE but $\alpha$-BP can outperform MMSE by assigning smaller value of $\alpha$.
-Note that MMSE requires the matrix inverse computation whose complexity is proportional to $N^3$, while the complexity of $\alpha$-BP increases linearly with $N$. Therefore $\alpha$-BP is superior to MMSE both performance-wise and complexity-wise.  
-%$\alpha$-BP does not have this problem and still can outperform MMSE. 
-However, there is still a big gap between $\alpha$-BP (even for $\alpha=0.4$) and MAP. This gap can be decreased further by using the prior trick discussed in Subsection~\ref{subsec:remark}. \autoref{fig:mimo_b} exemplifies this effects by using prior belief from MMSE, $\hat{p}_i(x_i)\propto \exp\{-(x_i-\mu_i)^2/(2\bm{\Sigma}_{i,i})\}$, which comes with legend "$\alpha$-BP$+$MMSE". It is shown that larger performance gain is observed when $\alpha$-BP runs with prior belief.
-
-\section{Conclusion}
-In this work, we obtain the $\alpha$-BP method by doing local $\alpha$-divergence minimization between model distribution $p$ and surrogate distribution $q$. $\alpha$-BP is a practical Bayesian method for message passing. $\alpha$-BP is a valid and practical algorithm accoinding to our experiments. With prior trick, the performance of $\alpha$-BP can be further improved. Future works would be to investigate the parallel message passing scheduling of $\alpha$-BP. It is also interesting to study guideline on choice of $\alpha$.
 
 \bibliographystyle{IEEEtran}
 
