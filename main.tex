@@ -61,15 +61,15 @@
 \begin{document}
 \title{$\alpha$ Belief Propagation as Fully Factorized Approximation}
 \author{First Hand Scientists\\
-e-mail: doli@kth.se}
+  e-mail: doli@kth.se}
 % \author{
-%   \IEEEauthorblockN{
-%     Dong Liu$^{1}$, Nima N. Moghadam$^{2}$, Lars~K. Rasmussen$^{1}$, Jinliang Huang$^{2}$, Saikat Chatterjee$^{1}$}
+% \IEEEauthorblockN{
+% Dong Liu$^{1}$, Nima N. Moghadam$^{2}$, Lars~K. Rasmussen$^{1}$, Jinliang Huang$^{2}$, Saikat Chatterjee$^{1}$}
 
-%   \IEEEauthorblockA {$^{1}$ KTH Royal Institute of Technology, Stockholm, Sweden. }
-%   \IEEEauthorblockA {$^{2}$ Huawei Technologies Sweden AB, Stockholm, Sweden.}
-%   \IEEEauthorblockA{
-%     e-mail: \{doli, lkra, sach\}@kth.se, \{nima.najari.moghadam1, jinliang.huang\}@huawei.com}
+% \IEEEauthorblockA {$^{1}$ KTH Royal Institute of Technology, Stockholm, Sweden. }
+% \IEEEauthorblockA {$^{2}$ Huawei Technologies Sweden AB, Stockholm, Sweden.}
+% \IEEEauthorblockA{
+% e-mail: \{doli, lkra, sach\}@kth.se, \{nima.najari.moghadam1, jinliang.huang\}@huawei.com}
 % }
 
 
@@ -182,15 +182,15 @@ According to the stationary point equivalence Theorem in \cite{divergence-measur
 
       \tikzstyle{cnode} = [thick, cloud, draw,cloud puffs=10, cloud puff arc=120, aspect=2, inner ysep=4pt]
 
-      \node[cnode] (pajk) at (3, 1.5) {$\Tt_{\text{Pa}[j]\backslash k}$};
-      \node[cnode] (paik) at (-3, 1.5) {$\Tt_{\text{Pa}[i]\backslash k}$};
+      \node[cnode] (pajk) at (3, 1.5) {$\Nn(t)\backslash t$};
+      \node[cnode] (paik) at (-3, 1.5) {$\Nn(s)\backslash s$};
 
-      \node[nnode] (tk) at (0, 1.5) {$t_k(x_i, x_j)$};
-      \node[enode] (xi) at (-1.5 ,0) {$x_i$};
-      \node[nnode] (fi) at (-1.5 , -1.5) {$f_i(x_i)$};
+      \node[nnode] (tk) at (0, 1.5) {$\phi_{st}(x_s, x_t)$};
+      \node[enode] (xi) at (-1.5 ,0) {$x_v$};
+      \node[nnode] (fi) at (-1.5 , -1.5) {$\phi_s(x_s)$};
 
-      \node[enode] (xj) at (1.5 ,0) {$x_j$};
-      \node[nnode] (fj) at (1.5 , -1.5) {$f_j(x_j)$};
+      \node[enode] (xj) at (1.5 ,0) {$x_u$};
+      \node[nnode] (fj) at (1.5 , -1.5) {$\phi_s(x_s)$};
       % connections
 
       \draw[-] (xi) to (fi);
@@ -213,25 +213,19 @@ An undirected graphical model, known as Markov random field, defines a
 family of joint probability distributions over $\bm{x}$ by associating
 its index set with the vertex set $\Vv$ of undirected graph
 $\Gg:=(\Vv, \Ee)$. The graph contains edges $\Ee \subset \Vv \times
-\Vv$, where a pair of $(v, u) \in \Ee$ if and only if nodes $v$ and
+\Vv$, where a pair of $(s, t) \in \Ee$ if and only if nodes $v$ and
 $u$ are connected by a edge. For a clique $\Cc$ of the graph, let
 $\phi_{\Cc}: \Aa^{\abs{\Cc}} \rightarrow (0, \infty)$ be a potential
 function of vector $\bm{x}_{\Cc}:=\left\{ x_v| v\in \Cc \right\}$. Let
 us then write the joint distribution of $\bm{x}$ as
 \begin{equation}\label{eq:mrf}
-  p(\bm{x}) \propto \prod_{{v\in \Vv}} \phi_v(x_) \prod_{(v,u) \in \Ee} \phi_{vu}(x_v, x_u),
+  p(\bm{x}) \propto \prod_{{s\in \Vv}} \phi_s(x_s) \prod_{(s,t) \in \Ee} \phi_{st}(x_s, x_t),
 \end{equation}
 where $\propto$ denotes the fact that the only difference between two sides of $\propto$ is a constant factor.
 
-The factor graph representing \autoref{eq:mrf} is shown in \autoref{fig:factor-graph}. In the figure, $\text{Pa}[i]$ is the index set of pairwise factors connecting to variable node $x_i$, i.e. $\text{Pa}[i]$ is subset of $\Kk$, $\backslash$ denotes exclusion. $\Tt_{\text{Pa}[i]\backslash k}$ is the product of all pairwise factors connecting to $x_i$ except for $t_k$:
-\begin{equation}
-  \Tt_{\text{Pa}[i]\backslash k} = \prod_{n \in \text{Pa}[i]\backslash k}t_n.
-\end{equation}
-
-
-% Since the KL-projection onto a 
-
-% Lemma of alpha-divergence minimization, where the fully-factorized solution should be given\\
+The factor graph representing \autoref{eq:mrf} is shown in
+\autoref{fig:factor-graph}. In the figure, $\Nn(s)$ is the node set of
+pairwise factors connecting to variable node $x_s$, and $\backslash$ denotes exclusion.
 
 \section{$\alpha$-BP as Fully-Factorized Approximation}
 In this section, we will show why $\alpha$-BP as a message-passing algorithm can be used as a fully-factorized approximation to the original distribution $p(\bm{x})$. 
@@ -243,70 +237,69 @@ In this section, we will show why $\alpha$-BP as a message-passing algorithm can
 \subsubsection{Fully Factorized Surrogate}
 Now we formulate a surrogate distribution as
 \begin{equation}
-    q(\bm{x}) \propto \prod_{{v\in \Vv}} \tilde{\phi}_v(x_) \prod_{(v,u) \in \Ee} \tilde{\phi}_{vu}(x_v, x_u),
+  q(\bm{x}) \propto \prod_{{s\in \Vv}} \tilde{\phi}_s(x_s) \prod_{(s,t) \in \Ee} \tilde{\phi}_{st}(x_s, x_t),
 \end{equation}
-to approximate $p(\bm{x})$. The surrogate distribution would be used to estimate inference problems of $p(\bm{x})$. We further assume that $q(\bm{x})$ can be fully factorized, which means that $\tilde{\phi}_{v,u}(x_v, x_u)$ can be factorized as two independent functions of $x_v, x_u$ respectively. We denote this factorization as
+to approximate $p(\bm{x})$. The surrogate distribution would be used to estimate inference problems of $p(\bm{x})$. We further assume that $q(\bm{x})$ can be fully factorized, which means that $\tilde{\phi}_{s,t}(x_s, x_t)$ can be factorized as two independent functions of $x_s, x_t$ respectively. We denote this factorization as
 \begin{equation}
-  \tilde{\phi}_{v,u}(x_v, x_u) := m_{uv}(x_v) m_{vu}(x_u).
+  \tilde{\phi}_{s,t}(x_s, x_t) := m_{st}(x_t) m_{ts}(x_s).
 \end{equation}
-We use the notation $m_{uv}(x_v)$ to denote the factor as a function of $x_v$ due to the intuitive fact that $m_{uv}$ is also the message from the factor $\phi_{uv}(x_u, x_v)$ to variable node $x_v$. Similarly we have factor $m_{vu}(x_u)$. Then the marginal can be formulated straightforwardly as
+We use the notation $m_{ts}(x_s)$ to denote the factor as a function of $x_s$ due to the intuitive fact that $m_{ts}$ is also the message from the factor $\phi_{ts}(x_t, x_s)$ to variable node $x_s$. Similarly we have factor $m_{st}(x_t)$. Then the marginal can be formulated straightforwardly as
 \begin{equation}
-  q_v(x_v) \propto \tilde{\phi}_v(x_v) \prod_{w\in \Nn(v)} m_{wv}(x_v).
+  q_s(x_s) \propto \tilde{\phi}_s(x_s) \prod_{w\in \Nn(s)} m_{ws}(x_s).
 \end{equation}
 
 \subsubsection{Local $\alpha$-Divergence Minimization}
 
 Now, we are going to use the heuristic scheme as in \autoref{eq:fixed-point-iter} to minimize the information loss by using tractable $q(\bm{x})$ to represent $p(\bm{x})$. The information loss is measured by $\alpha$-divergence $\Dd_{\alpha}(p(\bm{x}) \| q(\bm{x}))$.
 
-We do factor-wise refinement to update the factors of $q(\bm{x})$ such that $q(\bm{x})$ approaches $p(\bm{x})$ asymptotically similar to \cite{divergence-measures-and-message-passing,Minka:2001:EPA:647235.720257}. Without losing generality, we begin to refine factor $\tilde{\phi}_{uv}(x_u, x_v)$. Define $q^{\backslash (u,v)}(\bm{x})$ as all other factors except for $\tilde{\phi}_{uv}(x_u, x_v)$
+We do factor-wise refinement to update the factors of $q(\bm{x})$ such that $q(\bm{x})$ approaches $p(\bm{x})$ asymptotically similar to \cite{divergence-measures-and-message-passing,Minka:2001:EPA:647235.720257}. Without losing generality, we begin to refine factor $\tilde{\phi}_{ts}(x_t, x_s)$. Define $q^{\backslash (t,s)}(\bm{x})$ as all other factors except for $\tilde{\phi}_{ts}(x_t, x_s)$
 \begin{equation}
-  q^{\backslash k}(\bm{x}) = q(\bm{x})/\tilde{\phi}_{uv}(x_u, x_v)
-  \propto \prod_{{v\in \Vv}} \tilde{\phi}_v(x_) \prod_{(v,u) \in
-    \Ee\backslash (u,v)} \tilde{\phi}_{vu}(x_v, x_u).
+  q^{\backslash k}(\bm{x}) = q(\bm{x})/\tilde{\phi}_{ts}(x_t, x_s)
+  \propto \prod_{{s\in \Vv}} \tilde{\phi}_s(x_s) \prod_{(v,u) \in
+    \Ee\backslash (t,s)} \tilde{\phi}_{ts}(x_t, x_s).
 \end{equation}
-Similarly, we have $p^{\backslash (u,v)}(\bm{x})$ as all other factors except for ${\phi}_{uv}(x_u, x_v)$. Assume that we already have had $q^{\backslash (u,v)}(\bm{x})$ as a good approximation of $p^{\backslash (u,v)}(\bm{x})$, i.e. $q^{\backslash (u,v)}(\bm{x}) \simeq p^{\backslash (u,v)}(\bm{x})$, it is $\tilde{\phi}_{uv}(x_u, x_v)$ that remains to be refined. 
-Then the problem $\uargmin{\tilde{\phi}_{uv}^{\mathrm{new}}} \Dd_{\alpha}\left(  p^{\backslash (uv)}\phi_{uv}\|q^{\backslash (u,v)}\tilde{\phi}_{uv}^{\mathrm{new}}\right)$ becomes \vspace{-0.3cm}
+Similarly, we have $p^{\backslash (t,s)}(\bm{x})$ as all other factors except for ${\phi}_{ts}(x_t, x_s)$. Assume that we already have had $q^{\backslash (t,s)}(\bm{x})$ as a good approximation of $p^{\backslash (t,s)}(\bm{x})$, i.e. $q^{\backslash (t,s)}(\bm{x}) \simeq p^{\backslash (t,s)}(\bm{x})$, it is $\tilde{\phi}_{ts}(x_t, x_s)$ that remains to be refined. 
+Then the problem $\uargmin{\tilde{\phi}_{ts}^{\mathrm{new}}} \Dd_{\alpha}\left(  p^{\backslash (ts)}\phi_{ts}\|q^{\backslash (t,s)}\tilde{\phi}_{ts}^{\mathrm{new}}\right)$ becomes \vspace{-0.3cm}
 \begin{equation}
-  \uargmin{\tilde{\phi}_{uv}^{\mathrm{new}}(x_u, x_v)}
-  \Dd_{\alpha}\left( q^{\backslash (u,v)}(\bm{x}){\phi}_{uv}(x_u, x_v)
-    \|q^{\backslash (u,v)}(\bm{x})\tilde{\phi}_{uv}^{\mathrm{new}}(x_u, x_v) \right),
+  \uargmin{\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s)}
+  \Dd_{\alpha}\left( q^{\backslash (t,s)}(\bm{x}){\phi}_{ts}(x_t, x_s)
+    \|q^{\backslash (t,s)}(\bm{x})\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s) \right),
 \end{equation}
-which searches for new factor $\tilde{\phi}_{uv}^{\mathrm{new}}(x_u, x_v)$ such the above divergence is minimized.
+which searches for new factor $\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s)$ such the above divergence is minimized.
 Using \autoref{eq:fixed-point-iter}, the above problem is equivalent to
 \begin{align}\label{eq:update-rule}
-  &q^{\backslash (u,v)}(\bm{x})\tilde{\phi}_{uv}^{\mathrm{new}}(x_u, x_v)  \nonumber\\
-  &\propto \text{proj}\left[ \left( q^{\backslash (u,v)}(\bm{x}){\phi}_{uv}(x_u, x_v) \right)^{\alpha} \left(q^{\backslash (u,v)}(\bm{x})\tilde{\phi}_{uv}(x_u, x_v)  \right)^{1-\alpha} \right] \nonumber \\
+  &q^{\backslash (t,s)}(\bm{x})\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s)  \nonumber\\
+  &\propto \text{proj}\left[ \left( q^{\backslash (t,s)}(\bm{x}){\phi}_{ts}(x_t, x_s) \right)^{\alpha} \left(q^{\backslash (t,s)}(\bm{x})\tilde{\phi}_{ts}(x_t, x_s)  \right)^{1-\alpha} \right] \nonumber \\
   & \propto \text{proj}\left[ q^{\backslash
-    (u,v)}(\bm{x}){\phi}_{uv}(x_u, x_v)^{\alpha} \tilde{\phi}_{uv}(x_u, x_v)^{1-\alpha} \right].
+    (t,s)}(\bm{x}){\phi}_{ts}(x_t, x_s)^{\alpha} \tilde{\phi}_{ts}(x_t, x_s)^{1-\alpha} \right].
 \end{align}
 
-Let us refine one message per time on edge $(u,v)$. Without lose of generality, we update $m_{uv}$ and denote
+Let us refine one message per time on edge $(t,s)$. Without lose of generality, we update $m_{ts}$ and denote
 \begin{equation}
-  \tilde{\phi}_{uv}^{\mathrm{new}}(x_u, x_v) = m_{uv}^{\mathrm{new}}(x_v) m_{vu}(x_u).
+  \tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s) = m_{ts}^{\mathrm{new}}(x_s) m_{st}(x_t).
 \end{equation}
 Since KL-projection to a fully factorized distribution reduces to matching the marginals, \autoref{eq:update-rule} is reduced to
 \begin{equation}\label{eq:message-update}
-  \sum_{\bm{x}\backslash x_v} q^{\backslash (u,v)}(\bm{x}) \tilde{\phi}_{uv}^{\mathrm{new}}(x_u, x_v) \propto \sum_{\bm{x}\backslash x_v} q^{\backslash (u,v)}(\bm{x}) \phi_{uv}(x_u, x_v)^{\alpha} \tilde{\phi}_{uv}(x_u, x_v)^{1-\alpha}.
+  \sum_{\bm{x}\backslash x_s} q^{\backslash (t,s)}(\bm{x}) \tilde{\phi}_{uv}^{\mathrm{new}}(x_t, x_s) \propto \sum_{\bm{x}\backslash x_s} q^{\backslash (t,s)}(\bm{x}) \phi_{ts}(x_t, x_s)^{\alpha} \tilde{\phi}_{ts}(x_t, x_s)^{1-\alpha}.
 \end{equation}
 We use summation here. But it should be replaced by integral if $\Aa$ is a continuous set.
 Solving \autoref{eq:message-update} gives the message passing rule as
 \begin{equation}\label{eq:message-rule}
-  {m}^{\text{new}}_{uv}(x_v) \propto & m_{uv}(x_v)^{1-\alpha} \bigg[
-  \sum_{x_u} \phi_{uv}(x_u, x_v)^{\alpha} {m}_{vu}(x_u)^{1-\alpha}
-  \tilde{\phi}_u(x_u) \prod_{w\in \Nn(u)\backslash v}\phi_{wu}(x_w,x_u) \bigg].
+  {m}^{\text{new}}_{ts}(x_s) \propto  m_{ts}(x_s)^{1-\alpha} \bigg[
+  \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha} {m}_{st}(x_t)^{1-\alpha}
+  \tilde{\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg].
 \end{equation}
 
-As for the singleton factor $\tilde{\phi}_v(x_v)$, we can do the refinement procedure on $\tilde{\phi}_v(x_v)$ in the same way as we have done for $\tilde{\phi}_{uv}(x_u, x_v)$. This gives us the update rule of $\tilde{\phi}_v(x_v)$ as
+As for the singleton factor $\tilde{\phi}_t(x_t)$, we can do the refinement procedure on $\tilde{\phi}_t(x_t)$ in the same way as we have done for $\tilde{\phi}_{ts}(x_t, x_s)$. This gives us the update rule of $\tilde{\phi}_t(x_t)$ as
 \begin{equation}\label{eq:fix-factor-update}
-  \tilde{\phi}_v^{\text{new}}(x_v) \propto \phi_v(x_v)^{\alpha} \tilde{\phi}_v(x_v)^{1-\alpha},
+  \tilde{\phi}_t^{\text{new}}(x_t) \propto \phi_t(x_t)^{\alpha} \tilde{\phi}_t(x_t)^{1-\alpha},
 \end{equation}
-which is the belief from factor $f_v(x_v)$ to variable $x_v$. Note, if
-we initialize $\tilde{\phi}_v(x_v) = \phi_v(x_v)$, then it remains the
+which is the belief from factor $\phi_t(x_t)$ to variable $x_t$. Note, if
+we initialize $\tilde{\phi}_t(x_t) = \phi_t(x_t)$, then it remains the
 same in all iterations, which makes
 \begin{equation}\label{eq:message-rule}
-  {m}^{\text{new}}_{uv}(x_v) \propto & m_{uv}(x_v)^{1-\alpha} \bigg[
-  \sum_{x_u} \phi_{uv}(x_u, x_v)^{\alpha} {m}_{vu}(x_u)^{1-\alpha}
-  {\phi}_u(x_u) \prod_{w\in \Nn(u)\backslash v}\phi_{wu}(x_w,x_u) \bigg].
+  {m}^{\text{new}}_{ts}(x_s) \propto  m_{ts}(x_s)^{1-\alpha} \bigg[
+  \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha} {m}_{st}(x_t)^{1-\alpha} {\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg].
 \end{equation}
 
 
@@ -322,11 +315,11 @@ same in all iterations, which makes
 
       \tikzstyle{cnode} = [thick, cloud, draw,cloud puffs=10, cloud puff arc=120, aspect=2, inner ysep=4pt]
 
-      \node[cnode] (paik) at (0, 1.5) {$\Tt_{\text{Pa}[i]}$};
+      \node[cnode] (paik) at (0, 1.5) {$\Nn(v)$};
 
-      \node[enode] (xi) at (0 ,0) {$x_i$};
-      \node[nnode] (fi) at (0 , -1.5) {$f_i(x_i)$};
-      \node[nnode] (pi) at (2, 0) {$\hat{p}_i(x_i)$};
+      \node[enode] (xi) at (0 ,0) {$x_v$};
+      \node[nnode] (fi) at (0 , -1.5) {$\phi_s(x_s)$};
+      \node[nnode] (pi) at (2, 0) {$\hat{p}_s(x_s)$};
       % connections
       \draw[-] (xi) to (fi);
       \draw[-] (xi) to (pi);
@@ -339,14 +332,14 @@ same in all iterations, which makes
 
 As discussed in Section~\ref{sec:preliminary}, $KL(p\|q)$ is the special case of $\Dd_{\alpha}(p\|q)$ when $\alpha \rightarrow 1$. When applying $\alpha=1$ to \autoref{eq:message-rule}, it gives
 \begin{equation}
-   {m}^{\text{new}}_{uv}(x_v) \propto & \bigg[
-  \sum_{x_u} \phi_{uv}(x_u, x_v) {\phi}_u(x_u) \prod_{w\in \Nn(u)\backslash v}\phi_{wu}(x_w,x_u) \bigg],
+  {m}^{\text{new}}_{ts}(x_s) \propto \bigg[
+  \sum_{x_t} \phi_{st}(x_s, x_t) {\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg],
 \end{equation}
 which is exactly the messages of BP in Chapter~$8$ of \cite{Bishop:2006:PRM:1162264}. From this point of view, $\alpha$-BP generalizes BP.
 
-Inspired by \cite{pseudo_priorBP2010} and assembling methods \cite{James:2014:ISL:2517747}, we can add an extra singleton factor to each $x_i$ as prior information that is obtained from other (usually weak) methods. This factor stands for our belief from exterior estimation. Then run our $\alpha$-BP. Denote the prior by $\hat{p}_i(x_i)$ for variable node $x_i$, then the factor graph including this prior belief can be represented as in \autoref{fig:factor-graph-with-prior}.
+Inspired by \cite{pseudo_priorBP2010} and assembling methods \cite{James:2014:ISL:2517747}, we can add an extra singleton factor to each $x_v$ as prior information that is obtained from other (usually weak) methods. This factor stands for our belief from exterior estimation. Then run our $\alpha$-BP. Denote the prior by $\hat{p}_v(x_v)$ for variable node $x_v$, then the factor graph including this prior belief can be represented as in \autoref{fig:factor-graph-with-prior}.
 
-We summarize the method into the pseudo-code in Algorithm~\autoref{alg:alphaBP}. Though we explain the method with a binary MRF, it is straightforward to replace the factor $t_k$ by a factor involving more than two variables and applies $\alpha$-BP to general factor graphs.
+We summarize the method into the pseudo-code in Algorithm~\autoref{alg:alphaBP}.
 \begin{algorithm}
   \caption{Algorithm of $\alpha$-BP}\label{alg:alphaBP}
   \begin{algorithmic}[1]
@@ -365,6 +358,82 @@ We summarize the method into the pseudo-code in Algorithm~\autoref{alg:alphaBP}.
     \RETURN $q(\bm{x})$ 
   \end{algorithmic} 
 \end{algorithm}
+
+\section{Convergence of Binary $\Aa$}
+In this section we discuss the converge of $\alpha$-BP. We start from the case binary $\Aa$ case, i.e. $\Aa=\left\{ -1, 1 \right\}$. Using the exponential potentials:
+\begin{align}
+  \phi_{st}(x_s, x_t) &= \exp\left\{ \theta_{st}(x_s, x_t)\right\}, \\
+  \phi_{s}(x_s) &= \exp\left\{ \theta_{s}(x_s) \right\}.
+\end{align}
+
+Let us define the log ratio of belief on there two states:
+\begin{equation}\label{eq:log-ratio-uv}
+  z_{st} = \log\frac{m_{st}(1)}{m_{st}(-1)}.
+\end{equation}
+Substituting \eqref{eq:message-rule} into \eqref{eq:log-ratio-uv} gives
+\begin{align}
+  &F_{ts}(\bm{z}) = (1- \alpha)z_{ts} + \\
+  &\log\frac{\exp\left\{ \alpha\left[ \theta_{ts}(1,1) - \theta_{ts}(-1,1) \right] + \theta_t(1) - \theta_t(-1) + (1 - \alpha)z_{st} + \sum_{w\in \Nn(t)\backslash s} z_{wt} \right\}+1}
+    {\exp\left\{ \alpha\left[ \theta_{ts}(1,-1) - \theta_{ts}(-1,1) \right] + \theta_t(1) - \theta_t(-1) + (1 - \alpha)z_{st} + \sum_{w\in \Nn(t)\backslash s} z_{wt} \right\} +
+    \exp\left\{ \alpha\left[ \theta_{ts}(-1,-1) - \theta_{ts}(-1,1) \right] \right\}}.
+\end{align}
+Further assume the symmetric property of potentials
+\begin{align}
+  \theta_{ts}(x_t, x_s) &= -\theta_{ts}(x_t, -x_s) = -\theta_{ts}(-x_t, x_s), \\
+  \theta_{s}(x_s) &= - \theta_s(-x_s).
+\end{align}
+With the symmetric property, the log ratio updates for $z_{ts}$ can be reduced as
+\begin{equation}\label{eq:ratio-update}
+  F_{ts}(\bm{z}) = (1-\alpha) z_{ts} + f_{ts}(\bm{z}),
+\end{equation}
+where
+\begin{equation}
+  f_{ts}(\bm{z}) = \log\frac{\exp\left\{ 2 \alpha \theta_{ts} + \Delta_{ts}(\bm{z}) \right\}+1}
+  {\exp\left\{ \Delta_{ts}(\bm{z}) \right\} +
+    \exp\left\{ 2 \alpha \theta_{ts} \right\}},
+\end{equation}
+with
+\begin{equation}
+  \Delta_{ts}(\bm{z}) = 2 \theta_s + (1 - \alpha) z_{st} + \sum_{w\in \Nn(u)\backslash t} z_{wt}.
+\end{equation}
+
+Using $^{(n)}$ to denotes the iteration $n$. Then we have
+\begin{align}\label{eq:ratio_diff_at_n}
+  z_{ts}^{(n+1)} - z_{ts}^{(n)} &= (1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + f_{ts}(\bm{z}^{(n)}) - f_{ts}(\bm{z}^{(n-1)}) \nonumber \\
+                                & = (1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)}).
+\end{align}
+
+According to \cite{roosta2008reweighed_sum_product}, two functions
+\begin{align}
+  H(\mu; \kappa) := \log \frac{exp(\mu + \kappa) +1}{exp(\mu) + exp(\kappa)}, \nonumber \\
+  G(\mu; \kappa) := \frac{exp(\mu + \kappa)}{exp(\mu + \kappa) + 1} - \frac{exp(\mu)}{exp(\mu) + exp(\kappa)} = \frac{\sinh{\kappa}}{\cosh{\kappa} + \cosh{\mu}},
+\end{align}
+where it holds that
+\begin{equation}
+  \pd{H(\mu; \kappa)}{\mu} = G(\mu; \kappa),
+\end{equation}
+and
+\begin{equation}
+  \abs{G(\mu; \kappa)} \leq \abs{G(0, \kappa)}.
+\end{equation}
+
+\begin{equation}\label{eq:F_pd}
+  \pd{F_{ts}(\bm{z})}{z}=
+  \begin{cases}
+    1 - \alpha, &\quad z = z_{ts}  \\
+    ( 1 - \alpha) \pd{F_{ts}(\bm{z})}{\Delta_{ts}}, &\quad z = z_{st} \\
+    \pd{F_{ts}(\bm{z})}{\Delta_{ts}}, &\quad z = z_{wt}, w\in N(t)\backslash s.
+  \end{cases}
+\end{equation}
+
+From \eqref{eq:ratio_diff_at_n}, we have
+\begin{align}
+  \abs{z_{ts}^{(n+1)} - z_{ts}^{(n)}} & = \abs{(1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
+                                      & \leq \abs{(1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)})} + \abs{\nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
+                                      & = \abs{ 1 - \alpha} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{\nabla f_{ts}(\bm{z}^{\lambda})}^{T} \abs{\bm{z}^{(n)} - \bm{z}^{(n-1)}} \nonumber \\
+  & \leq \abs{ 1 - \alpha} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{ 1 - \alpha} \abs{G(0, 2 \alpha \theta_{ts})} \abs{z_{st}^{(n)} - z_{st}^{(n-1)}} + \sum_{w\in N(t)\backslash s} \abs{G(0, 2 \alpha \theta_{ts})} \abs{z_{wt}^{(n)} - z_{wt}^{(n-1)}}
+\end{align}
+
 
 
 \bibliographystyle{IEEEtran}
