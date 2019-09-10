@@ -424,14 +424,28 @@ and
 Note that in \eqref{eq:F_pd}, $\pd{F_{ts}(\bm{z})}{\Delta_{ts}} = \pd{f_{ts}(\bm{z})}{\Delta_{ts}}$.
 
 From \eqref{eq:ratio_diff_at_n}, we have
-\begin{align}
+\begin{align}\label{eq:ratio_cvg_step}
   \abs{z_{ts}^{(n+1)} - z_{ts}^{(n)}} & = \abs{(1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
                                       & \leq \abs{(1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)})} + \abs{\nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
                                       & = \abs{ 1 - \alpha} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{\nabla f_{ts}(\bm{z}^{\lambda})}^{T} \abs{\bm{z}^{(n)} - \bm{z}^{(n-1)}} \nonumber \\
-  & \leq \abs{ 1 - \alpha} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{ 1 - \alpha} \abs{G(0, 2 \alpha \theta_{ts})} \abs{z_{st}^{(n)} - z_{st}^{(n-1)}} + \sum_{w\in N(t)\backslash s} \abs{G(0, 2 \alpha \theta_{ts})} \abs{z_{wt}^{(n)} - z_{wt}^{(n-1)}}
+                                      & \leq \abs{ 1 - \alpha} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{ 1 - \alpha} \abs{G(0, 2 \alpha \theta_{ts})} \abs{z_{st}^{(n)} - z_{st}^{(n-1)}} + \sum_{w\in N(t)\backslash s} \abs{G(0, 2 \alpha \theta_{ts})} \abs{z_{wt}^{(n)} - z_{wt}^{(n-1)}}.
 \end{align}
 
-
+Define a sized $2\abs{\Ee} \times 2\abs{\Ee}$ matrix $\bm{M}(\alpha, \bm{\theta})$ with its entries index by edges $(t\rightarrow s)$, and of form
+\begin{equation}
+  M_{(t\rightarrow s), (u \rightarrow v)} =
+  \begin{cases}
+    \abs{ 1 - \alpha}, &\quad u=t, v=s, \\
+    \abs{ 1 - \alpha} \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u = s, v =t, \\
+    \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u = w, v = s, \\
+    0, & \quad \mathrm{otherwise}.
+  \end{cases}
+\end{equation}
+Then \eqref{eq:ratio_cvg_step} can be simplified as
+\begin{equation}
+  \abs{\bm{z}^{(n+1)} - \bm{z}^{n}} \leq \bm{M}(\alpha, \theta)\abs{\bm{z}^{(n)} - \bm{z}^{n-1}}.
+\end{equation}
+If the spectral radius of $\bm{M}$ is less than $1$, the sequence $\abs{\bm{z}^{(n+1)} - \bm{z}^{(n)}}$ converges to zero. The sequence $\left\{ \bm{z}^{(n)} \right\}$ is a Cauchy sequence and must converge.
 
 \bibliographystyle{IEEEtran}
 
