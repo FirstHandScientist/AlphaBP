@@ -182,15 +182,15 @@ According to the stationary point equivalence Theorem in \cite{divergence-measur
 
       \tikzstyle{cnode} = [thick, cloud, draw,cloud puffs=10, cloud puff arc=120, aspect=2, inner ysep=4pt]
 
-      \node[cnode] (pajk) at (3, 1.5) {$\Nn(t)\backslash t$};
-      \node[cnode] (paik) at (-3, 1.5) {$\Nn(s)\backslash s$};
+      \node[cnode] (pajk) at (3, 1.5) {$\Nn(t)\backslash s$};
+      \node[cnode] (paik) at (-3, 1.5) {$\Nn(s)\backslash t$};
 
       \node[nnode] (tk) at (0, 1.5) {$\phi_{st}(x_s, x_t)$};
-      \node[enode] (xi) at (-1.5 ,0) {$x_v$};
+      \node[enode] (xi) at (-1.5 ,0) {$x_s$};
       \node[nnode] (fi) at (-1.5 , -1.5) {$\phi_s(x_s)$};
 
-      \node[enode] (xj) at (1.5 ,0) {$x_u$};
-      \node[nnode] (fj) at (1.5 , -1.5) {$\phi_s(x_s)$};
+      \node[enode] (xj) at (1.5 ,0) {$x_t$};
+      \node[nnode] (fj) at (1.5 , -1.5) {$\phi_t(x_t)$};
       % connections
 
       \draw[-] (xi) to (fi);
@@ -308,16 +308,12 @@ same in all iterations, which makes
 \begin{figure}[!ht]
   \begin{centering}
     \begin{tikzpicture}
-      % \tikzstyle{enode} = [thick, draw=blue, circle, inner sep = 3pt,
-      % align=center]
       \tikzstyle{enode} = [thick, draw=blue, circle, inner sep = 4pt,  align=center]
       \tikzstyle{nnode} = [thick, rectangle, rounded corners = 2pt,minimum size = 0.8cm,draw,inner sep = 2pt]
-
       \tikzstyle{cnode} = [thick, cloud, draw,cloud puffs=10, cloud puff arc=120, aspect=2, inner ysep=4pt]
 
-      \node[cnode] (paik) at (0, 1.5) {$\Nn(v)$};
-
-      \node[enode] (xi) at (0 ,0) {$x_v$};
+      \node[cnode] (paik) at (0, 1.5) {$\Nn(s)$};
+      \node[enode] (xi) at (0 ,0) {$x_s$};
       \node[nnode] (fi) at (0 , -1.5) {$\phi_s(x_s)$};
       \node[nnode] (pi) at (2, 0) {$\hat{p}_s(x_s)$};
       % connections
@@ -425,6 +421,7 @@ and
     \pd{F_{ts}(\bm{z})}{\Delta_{ts}}, &\quad z = z_{wt}, w\in N(t)\backslash s.
   \end{cases}
 \end{equation}
+Note that in \eqref{eq:F_pd}, $\pd{F_{ts}(\bm{z})}{\Delta_{ts}} = \pd{f_{ts}(\bm{z})}{\Delta_{ts}}$.
 
 From \eqref{eq:ratio_diff_at_n}, we have
 \begin{align}
