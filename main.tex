@@ -253,11 +253,24 @@ We use the notation $m_{ts}(x_s)$ to denote the factor as a function of $x_s$ du
 Now, we are going to use the heuristic scheme as in \autoref{eq:fixed-point-iter} to minimize the information loss by using tractable $q(\bm{x})$ to represent $p(\bm{x})$. The information loss is measured by $\alpha$-divergence $\Dd_{\alpha}(p(\bm{x}) \| q(\bm{x}))$.
 
 We do factor-wise refinement to update the factors of $q(\bm{x})$ such that $q(\bm{x})$ approaches $p(\bm{x})$ asymptotically similar to \cite{divergence-measures-and-message-passing,Minka:2001:EPA:647235.720257}. Without losing generality, we begin to refine factor $\tilde{\phi}_{ts}(x_t, x_s)$. Define $q^{\backslash (t,s)}(\bm{x})$ as all other factors except for $\tilde{\phi}_{ts}(x_t, x_s)$
-\begin{equation}
-  q^{\backslash k}(\bm{x}) = q(\bm{x})/\tilde{\phi}_{ts}(x_t, x_s)
-  \propto \prod_{{s\in \Vv}} \tilde{\phi}_s(x_s) \prod_{(v,u) \in
-    \Ee\backslash (t,s)} \tilde{\phi}_{ts}(x_t, x_s).
-\end{equation}
+\begin{align}
+  q^{\backslash (t,s)}(\bm{x})
+  &= q(\bm{x})/\tilde{\phi}_{ts}(x_t,
+    x_s) \nonumber \\
+  &\propto \prod_{{s\in \Vv}} \tilde{\phi}_s(x_s) \prod_{(v,u) \in
+    \Ee\backslash (t,s)}
+    \tilde{\phi}_{vu}(x_v, x_u) \nonumber \\
+  &= \left(
+    \tilde{\phi}_s(x_s) \prod_{w\in \Nn(s) \backslash t}m_{ws}(x_s)
+    \right)
+    \left(
+    \tilde{\phi}_t(x_t) \prod_{w\in \Nn(t) \backslash s}m_{wt}(x_t)
+    \right)
+    \left(
+    \prod_{v \in \Vv \backslash s,t}
+    \tilde{\phi}_v(x_v) \prod_{w\in \Nn(v)}m_{wv}(x_v)
+    \right)\nonumber \\
+\end{align}
 Similarly, we have $p^{\backslash (t,s)}(\bm{x})$ as all other factors except for ${\phi}_{ts}(x_t, x_s)$. Assume that we already have had $q^{\backslash (t,s)}(\bm{x})$ as a good approximation of $p^{\backslash (t,s)}(\bm{x})$, i.e. $q^{\backslash (t,s)}(\bm{x}) \simeq p^{\backslash (t,s)}(\bm{x})$, it is $\tilde{\phi}_{ts}(x_t, x_s)$ that remains to be refined. 
 Then the problem $\uargmin{\tilde{\phi}_{ts}^{\mathrm{new}}} \Dd_{\alpha}\left(  p^{\backslash (ts)}\phi_{ts}\|q^{\backslash (t,s)}\tilde{\phi}_{ts}^{\mathrm{new}}\right)$ becomes \vspace{-0.3cm}
 \begin{equation}
@@ -280,7 +293,7 @@ Let us refine one message per time on edge $(t,s)$. Without lose of generality, 
 \end{equation}
 Since KL-projection to a fully factorized distribution reduces to matching the marginals, \autoref{eq:update-rule} is reduced to
 \begin{equation}\label{eq:message-update}
-  \sum_{\bm{x}\backslash x_s} q^{\backslash (t,s)}(\bm{x}) \tilde{\phi}_{uv}^{\mathrm{new}}(x_t, x_s) \propto \sum_{\bm{x}\backslash x_s} q^{\backslash (t,s)}(\bm{x}) \phi_{ts}(x_t, x_s)^{\alpha} \tilde{\phi}_{ts}(x_t, x_s)^{1-\alpha}.
+  \sum_{\bm{x}\backslash x_s} q^{\backslash (t,s)}(\bm{x}) \tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s) \propto \sum_{\bm{x}\backslash x_s} q^{\backslash (t,s)}(\bm{x}) \phi_{ts}(x_t, x_s)^{\alpha} \tilde{\phi}_{ts}(x_t, x_s)^{1-\alpha}.
 \end{equation}
 We use summation here. But it should be replaced by integral if $\Aa$ is a continuous set.
 Solving \autoref{eq:message-update} gives the message passing rule as
@@ -355,97 +368,146 @@ We summarize the method into the pseudo-code in Algorithm~\autoref{alg:alphaBP}.
   \end{algorithmic} 
 \end{algorithm}
 
-\section{Convergence of Binary $\Aa$}
+\textcolor{red}{Equivalence to EP}
+\section{Convergence of $\alpha$-BP with Binary $\Aa$}
 In this section we discuss the converge of $\alpha$-BP. We start from the case binary $\Aa$ case, i.e. $\Aa=\left\{ -1, 1 \right\}$. Using the exponential potentials:
 \begin{align}
   \phi_{st}(x_s, x_t) &= \exp\left\{ \theta_{st}(x_s, x_t)\right\}, \\
   \phi_{s}(x_s) &= \exp\left\{ \theta_{s}(x_s) \right\}.
 \end{align}
 
-Let us define the log ratio of belief on there two states:
-\begin{equation}\label{eq:log-ratio-uv}
-  z_{st} = \log\frac{m_{st}(1)}{m_{st}(-1)}.
-\end{equation}
-Substituting \eqref{eq:message-rule} into \eqref{eq:log-ratio-uv} gives
-\begin{align}
-  &F_{ts}(\bm{z}) = (1- \alpha)z_{ts} + \\
-  &\log\frac{\exp\left\{ \alpha\left[ \theta_{ts}(1,1) - \theta_{ts}(-1,1) \right] + \theta_t(1) - \theta_t(-1) + (1 - \alpha)z_{st} + \sum_{w\in \Nn(t)\backslash s} z_{wt} \right\}+1}
-    {\exp\left\{ \alpha\left[ \theta_{ts}(1,-1) - \theta_{ts}(-1,1) \right] + \theta_t(1) - \theta_t(-1) + (1 - \alpha)z_{st} + \sum_{w\in \Nn(t)\backslash s} z_{wt} \right\} +
-    \exp\left\{ \alpha\left[ \theta_{ts}(-1,-1) - \theta_{ts}(-1,1) \right] \right\}}.
-\end{align}
-Further assume the symmetric property of potentials
-\begin{align}
-  \theta_{ts}(x_t, x_s) &= -\theta_{ts}(x_t, -x_s) = -\theta_{ts}(-x_t, x_s), \\
-  \theta_{s}(x_s) &= - \theta_s(-x_s).
-\end{align}
-With the symmetric property, the log ratio updates for $z_{ts}$ can be reduced as
-\begin{equation}\label{eq:ratio-update}
-  F_{ts}(\bm{z}) = (1-\alpha) z_{ts} + f_{ts}(\bm{z}),
-\end{equation}
-where
-\begin{equation}
-  f_{ts}(\bm{z}) = \log\frac{\exp\left\{ 2 \alpha \theta_{ts} + \Delta_{ts}(\bm{z}) \right\}+1}
-  {\exp\left\{ \Delta_{ts}(\bm{z}) \right\} +
-    \exp\left\{ 2 \alpha \theta_{ts} \right\}},
-\end{equation}
-with
-\begin{equation}
-  \Delta_{ts}(\bm{z}) = 2 \theta_s + (1 - \alpha) z_{st} + \sum_{w\in \Nn(u)\backslash t} z_{wt}.
-\end{equation}
+\begin{thm}
+  For an arbitrary pairwise Markov random field over binary variables,
+  it the largest singular value of matrix $\bm{M}$ is less than one,
+  then $\alpha$-BP converges to a fixed point. The associated fixed
+  point is unique.
+\end{thm}
 
-Using $^{(n)}$ to denotes the iteration $n$. Then we have
-\begin{align}\label{eq:ratio_diff_at_n}
-  z_{ts}^{(n+1)} - z_{ts}^{(n)} &= (1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + f_{ts}(\bm{z}^{(n)}) - f_{ts}(\bm{z}^{(n-1)}) \nonumber \\
-                                & = (1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)}).
-\end{align}
+\begin{proof}
 
-According to \cite{roosta2008reweighed_sum_product}, two functions
-\begin{align}
-  H(\mu; \kappa) := \log \frac{exp(\mu + \kappa) +1}{exp(\mu) + exp(\kappa)}, \nonumber \\
-  G(\mu; \kappa) := \frac{exp(\mu + \kappa)}{exp(\mu + \kappa) + 1} - \frac{exp(\mu)}{exp(\mu) + exp(\kappa)} = \frac{\sinh{\kappa}}{\cosh{\kappa} + \cosh{\mu}},
-\end{align}
-where it holds that
-\begin{equation}
-  \pd{H(\mu; \kappa)}{\mu} = G(\mu; \kappa),
-\end{equation}
-and
-\begin{equation}
-  \abs{G(\mu; \kappa)} \leq \abs{G(0, \kappa)}.
-\end{equation}
+  Let us define the log ratio of belief on there two states:
+  \begin{equation}\label{eq:log-ratio-uv}
+    z_{st} = \log\frac{m_{st}(1)}{m_{st}(-1)}.
+  \end{equation}
+  Substituting \eqref{eq:message-rule} into \eqref{eq:log-ratio-uv} gives
+  \begin{align}
+    &F_{ts}(\bm{z}) = (1- \alpha)z_{ts} + \\
+    &\log\frac{\exp\left\{ \alpha\left[ \theta_{ts}(1,1) - \theta_{ts}(-1,1) \right] + \theta_t(1) - \theta_t(-1) + (1 - \alpha)z_{st} + \sum_{w\in \Nn(t)\backslash s} z_{wt} \right\}+1}
+      {\exp\left\{ \alpha\left[ \theta_{ts}(1,-1) - \theta_{ts}(-1,1) \right] + \theta_t(1) - \theta_t(-1) + (1 - \alpha)z_{st} + \sum_{w\in \Nn(t)\backslash s} z_{wt} \right\} +
+      \exp\left\{ \alpha\left[ \theta_{ts}(-1,-1) - \theta_{ts}(-1,1) \right] \right\}},
+  \end{align}
+  where $\bm{z}$ is vector with element entry $z_{vu}, v,u \in \Vv$.
+  Further assume the symmetric property of potentials
+  \begin{align}
+    \theta_{ts}(x_t, x_s) &= -\theta_{ts}(x_t, -x_s) = -\theta_{ts}(-x_t, x_s), \\
+    \theta_{s}(x_s) &= - \theta_s(-x_s).
+  \end{align}
+  With the symmetric property, the log ratio updates for $z_{ts}$ can be reduced as
+  \begin{equation}\label{eq:ratio-update}
+    F_{ts}(\bm{z}) = (1-\alpha) z_{ts} + f_{ts}(\bm{z}),
+  \end{equation}
+  where
+  \begin{equation}
+    f_{ts}(\bm{z}) = \log\frac{\exp\left\{ 2 \alpha \theta_{ts} + \Delta_{ts}(\bm{z}) \right\}+1}
+    {\exp\left\{ \Delta_{ts}(\bm{z}) \right\} +
+      \exp\left\{ 2 \alpha \theta_{ts} \right\}},
+  \end{equation}
+  with
+  \begin{equation}
+    \Delta_{ts}(\bm{z}) = 2 \theta_s + (1 - \alpha) z_{st} + \sum_{w\in \Nn(u)\backslash t} z_{wt}.
+  \end{equation}
 
-\begin{equation}\label{eq:F_pd}
-  \pd{F_{ts}(\bm{z})}{z}=
-  \begin{cases}
-    1 - \alpha, &\quad z = z_{ts}  \\
-    ( 1 - \alpha) \pd{F_{ts}(\bm{z})}{\Delta_{ts}}, &\quad z = z_{st} \\
-    \pd{F_{ts}(\bm{z})}{\Delta_{ts}}, &\quad z = z_{wt}, w\in N(t)\backslash s.
-  \end{cases}
-\end{equation}
-Note that in \eqref{eq:F_pd}, $\pd{F_{ts}(\bm{z})}{\Delta_{ts}} = \pd{f_{ts}(\bm{z})}{\Delta_{ts}}$.
+  Using $^{(n)}$ to denotes the iteration $n$. Then we have
+  \begin{align}\label{eq:ratio_diff_at_n}
+    z_{ts}^{(n+1)} - z_{ts}^{(n)} &= (1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + f_{ts}(\bm{z}^{(n)}) - f_{ts}(\bm{z}^{(n-1)}) \nonumber \\
+                                  & = (1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)}).
+  \end{align}
 
-From \eqref{eq:ratio_diff_at_n}, we have
-\begin{align}\label{eq:ratio_cvg_step}
-  \abs{z_{ts}^{(n+1)} - z_{ts}^{(n)}} & = \abs{(1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
-                                      & \leq \abs{(1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)})} + \abs{\nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
-                                      & = \abs{ 1 - \alpha} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{\nabla f_{ts}(\bm{z}^{\lambda})}^{T} \abs{\bm{z}^{(n)} - \bm{z}^{(n-1)}} \nonumber \\
-                                      & \leq \abs{ 1 - \alpha} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{ 1 - \alpha} \abs{G(0, 2 \alpha \theta_{ts})} \abs{z_{st}^{(n)} - z_{st}^{(n-1)}} + \sum_{w\in N(t)\backslash s} \abs{G(0, 2 \alpha \theta_{ts})} \abs{z_{wt}^{(n)} - z_{wt}^{(n-1)}}.
-\end{align}
+  According to \cite{roosta2008reweighed_sum_product}, two functions
+  \begin{align}
+    H(\mu; \kappa) &:= \log \frac{exp(\mu + \kappa) +1}{exp(\mu) + exp(\kappa)}, \nonumber \\
+    G(\mu; \kappa) &:= \frac{exp(\mu + \kappa)}{exp(\mu + \kappa) + 1} - \frac{exp(\mu)}{exp(\mu) + exp(\kappa)} = \frac{\sinh{\kappa}}{\cosh{\kappa} + \cosh{\mu}},
+  \end{align}
+  where it holds that
+  \begin{equation}
+    \pd{H(\mu; \kappa)}{\mu} = G(\mu; \kappa),
+  \end{equation}
+  and
+  \begin{equation}
+    \abs{G(\mu; \kappa)} \leq \abs{G(0, \kappa)}.
+  \end{equation}
 
-Define a sized $2\abs{\Ee} \times 2\abs{\Ee}$ matrix $\bm{M}(\alpha, \bm{\theta})$ with its entries index by edges $(t\rightarrow s)$, and of form
-\begin{equation}
-  M_{(t\rightarrow s), (u \rightarrow v)} =
-  \begin{cases}
-    \abs{ 1 - \alpha}, &\quad u=t, v=s, \\
-    \abs{ 1 - \alpha} \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u = s, v =t, \\
-    \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u = w, v = s, \\
-    0, & \quad \mathrm{otherwise}.
-  \end{cases}
-\end{equation}
-Then \eqref{eq:ratio_cvg_step} can be simplified as
-\begin{equation}
-  \abs{\bm{z}^{(n+1)} - \bm{z}^{n}} \leq \bm{M}(\alpha, \theta)\abs{\bm{z}^{(n)} - \bm{z}^{n-1}}.
-\end{equation}
-If the spectral radius of $\bm{M}$ is less than $1$, the sequence $\abs{\bm{z}^{(n+1)} - \bm{z}^{(n)}}$ converges to zero. The sequence $\left\{ \bm{z}^{(n)} \right\}$ is a Cauchy sequence and must converge.
+  \begin{equation}\label{eq:F_pd}
+    \pd{F_{ts}(\bm{z})}{z}=
+    \begin{cases}
+      1 - \alpha, &\quad z = z_{ts}  \\
+      ( 1 - \alpha) \pd{f_{ts}(\bm{z})}{\Delta_{ts}}, &\quad z = z_{st} \\
+      \pd{f_{ts}(\bm{z})}{\Delta_{ts}}, &\quad z = z_{wt}, w\in N(t)\backslash s.
+    \end{cases}
+  \end{equation}
+  Note that in \eqref{eq:F_pd}, $\pd{F_{ts}(\bm{z})}{\Delta_{ts}} = \pd{f_{ts}(\bm{z})}{\Delta_{ts}}$.
+
+  From \eqref{eq:ratio_diff_at_n}, we have
+  \begin{align}\label{eq:ratio_cvg_step}
+    \abs{z_{ts}^{(n+1)} - z_{ts}^{(n)}} & = \abs{(1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
+                                        & \leq \abs{(1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)})} + \abs{\nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
+                                        & = \abs{ 1 - \alpha} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{\nabla f_{ts}(\bm{z}^{\lambda})}^{T} \abs{\bm{z}^{(n)} - \bm{z}^{(n-1)}} \nonumber \\
+                                        & \leq \abs{ 1 - \alpha} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{ 1 - \alpha} \abs{G(0, 2 \alpha \theta_{ts})} \abs{z_{st}^{(n)} - z_{st}^{(n-1)}} + \sum_{w\in N(t)\backslash s} \abs{G(0, 2 \alpha \theta_{ts})} \abs{z_{wt}^{(n)} - z_{wt}^{(n-1)}}.
+  \end{align}
+
+  Define a sized $2\abs{\Ee} \times 2\abs{\Ee}$ matrix $\bm{M}(\alpha, \bm{\theta})$ with its entries index by edges $(t\rightarrow s)$, and of form
+  \begin{equation}
+    M_{(t\rightarrow s), (u \rightarrow v)} =
+    \begin{cases}
+      \abs{ 1 - \alpha}, &\quad u=t, v=s, \\
+      \abs{ 1 - \alpha} \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u = s, v =t, \\
+      \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u = w, v = s, \\
+      0, & \quad \mathrm{otherwise}.
+    \end{cases}
+  \end{equation}
+  Then \eqref{eq:ratio_cvg_step} can be simplified as
+  \begin{equation}\label{eq:ratio-update-ineq}
+    \abs{\bm{z}^{(n+1)} - \bm{z}^{n}} \leq \bm{M}(\alpha, \bm{\theta})\abs{\bm{z}^{(n)} - \bm{z}^{n-1}},
+  \end{equation}
+  where $\bm{\theta}$ is the vector with elements $\left\{ \theta_{vu}| v, u \in \Vv \right\}$ and $\leq$ in \eqref{eq:ratio-update-ineq} denotes the element-wise inequality. From \eqref{eq:ratio-update-ineq}, we could have
+  \begin{equation}
+    \normd{\bm{z}^{(n+1)} - \bm{z}^{n}} \leq \normd{\bm{M}(\alpha, \bm{\theta})(\bm{z}^{(n)} - \bm{z}^{n-1})} \leq \lambda^{\ast}(\bm{M})\normd{\bm{z}^{(n)} - \bm{z}^{n-1}},
+  \end{equation}
+  where $\lambda^{\ast}(\bm{M})$ is the largest singular value of matrix
+  $\bm{M}$, and $\normd{\cdot}$ is Euclidean norm. If the largest singular value of $\bm{M}$ is less than $1$, the sequence
+  $\left\{\abs{\bm{z}^{(n+1)} - \bm{z}^{(n)}}\right\}$ converges to zero. Therefore, for $\lambda^{\ast}(\bm{M})<1$, the sequence $\left\{ \bm{z}^{(n)} \right\}$ is a Cauchy sequence and must converge. Let us denote vector with elements $\left\{ F_{st} \right\}$ by $\bm{F}$. $\bm{F}$ is a continuous function of $\bm{z}$. Then we have
+  \begin{equation}
+    \bm{F}(\lim_{n\rightarrow \infty}\bm{z}^{(n)}) = \lim_{n\rightarrow \infty}\bm{F}(\bm{z}^{(n)}).
+  \end{equation}
+  Assume that $\left\{ \bm{z}^{(n)} \right\}$ converges to
+  $\bm{z}^{\ast}$.
+  \begin{align}
+    \bm{F}(\bm{z}^{\ast}) - \bm{z}^{\ast}
+    &= \lim_{n\rightarrow \infty} \bm{F}(\bm{z}^{(n)}) -\lim_{n\rightarrow
+      \infty} \bm{z}^{(n)} \nonumber \\
+    &= \lim_{n\rightarrow \infty} (\bm{z}^{(n+1)} - \bm{z}^{(n)}) \nonumber \\
+    &= 0.
+  \end{align}
+  Thus $\bm{z}^{\ast}$ must be a fixed point.
+
+  In what follows we show that the fixed point is unique for $\lambda^{\ast}(\bm{M})<1$. Assume that there are two fixed points $\bm{z}_0^{\ast}$ and $\bm{z}_1^{\ast}$ for sequence $\left\{ \bm{z}^{(n)} \right\}$. Then we have
+  \begin{align}\label{eq:two-fix-point}
+    \bm{F}(\bm{z}_0^{\ast}) &= \bm{z}_0^{\ast}, \nonumber \\
+    \bm{F}(\bm{z}_1^{\ast}) &= \bm{z}_1^{\ast}. \nonumber \\
+  \end{align}
+  Then
+  \begin{equation}\label{eq:two-fix-ineq}
+    \normd{\bm{F}(\bm{z}_0^{\ast}) - \bm{F}(\bm{z}_1^{\ast})} \leq
+    \lambda^{\ast}(\bm{M})\normd{\bm{z}_0^{\ast} - \bm{z}_1^{\ast}}.
+  \end{equation}
+  Substituting \eqref{eq:two-fix-point} into \eqref{eq:two-fix-ineq}
+  gives
+  \begin{equation}\label{eq:two-fix-ineq}
+    \normd{\bm{z}_0^{\ast} - \bm{z}_1^{\ast}} \leq
+    \lambda^{\ast}(\bm{M})\normd{\bm{z}_0^{\ast} - \bm{z}_1^{\ast}},
+  \end{equation}
+  which gives us $\bm{z}_0^{\ast} = \bm{z}_1^{\ast}$.
+\end{proof}
 
 \bibliographystyle{IEEEtran}
 
