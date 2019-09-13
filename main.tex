@@ -552,7 +552,7 @@ Given the fact that $\alpha$-BP would converge if the condition in Theorem~\ref{
   \end{align}
   where we omit the arguments of $\bm{M}$. Recall the directed-edge-indexed matrix $\bm{M}$. We can detail the two cases in \ref{eq:row-col-norm-ineq} as follows
   \begin{align}
-    \normu{\bm{M}} &= \umax{u \rightarrow v}{\sum_{s\rightarrow t} M_{(s\rightarrow t), (u\rightarrow v)}} = ???, \nonumber \\
+    \normu{\bm{M}} &= \umax{u \rightarrow v}{\sum_{s\rightarrow t} M_{(s\rightarrow t), (u\rightarrow v)}} = \abs{1-\alpha}(1 + \tanh{\abs{\alpha \theta_{vu}}}) + \sum_{w \Nn(v) \backslash u} \tanh{\abs{\alpha \theta_{vw}}}, \nonumber \\
     \normi{\bm{M}} &= \umax{t \rightarrow s}{\sum_{u\rightarrow v} M_{(s\rightarrow t), (u\rightarrow v)}} = \abs{1-\alpha} (1 + \abs{G(0, 2\alpha \theta_{ts})}) + (\abs{\Nn(t)}-1)\abs{G(0, 2\alpha \theta_{ts})},
   \end{align}
 \end{proof}
