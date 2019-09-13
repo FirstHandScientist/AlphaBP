@@ -227,13 +227,13 @@ The factor graph representing \autoref{eq:mrf} is shown in
 \autoref{fig:factor-graph}. In the figure, $\Nn(s)$ is the node set of
 pairwise factors connecting to variable node $x_s$, and $\backslash$ denotes exclusion.
 
-\section{$\alpha$-BP as Fully-Factorized Approximation}
+\section{$\alpha$-BP with Fixed Global $\alpha$}\label{sec:alpha-bp-factor-refine}
 In this section, we will show why $\alpha$-BP as a message-passing algorithm can be used as a fully-factorized approximation to the original distribution $p(\bm{x})$. 
 
 
 
 
-\subsection{$\alpha$ Belief Propagation}
+\subsection{$\alpha$ Belief Propagation}\label{sec:alpha-bp-a}
 \subsubsection{Fully Factorized Surrogate}
 Now we formulate a surrogate distribution as
 \begin{equation}
@@ -273,7 +273,7 @@ We do factor-wise refinement to update the factors of $q(\bm{x})$ such that $q(\
 \end{align}
 Similarly, we have $p^{\backslash (t,s)}(\bm{x})$ as all other factors except for ${\phi}_{ts}(x_t, x_s)$. Assume that we already have had $q^{\backslash (t,s)}(\bm{x})$ as a good approximation of $p^{\backslash (t,s)}(\bm{x})$, i.e. $q^{\backslash (t,s)}(\bm{x}) \simeq p^{\backslash (t,s)}(\bm{x})$, it is $\tilde{\phi}_{ts}(x_t, x_s)$ that remains to be refined. 
 Then the problem $\uargmin{\tilde{\phi}_{ts}^{\mathrm{new}}} \Dd_{\alpha}\left(  p^{\backslash (ts)}\phi_{ts}\|q^{\backslash (t,s)}\tilde{\phi}_{ts}^{\mathrm{new}}\right)$ becomes \vspace{-0.3cm}
-\begin{equation}
+\begin{equation}\label{eq:alpha-minimize-factor}
   \uargmin{\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s)}
   \Dd_{\alpha}\left( q^{\backslash (t,s)}(\bm{x}){\phi}_{ts}(x_t, x_s)
     \|q^{\backslash (t,s)}(\bm{x})\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s) \right),
@@ -370,15 +370,31 @@ We summarize the method into the pseudo-code in Algorithm~\autoref{alg:alphaBP}.
 
 \textcolor{red}{Equivalence to EP}
 \section{Convergence of $\alpha$-BP with Binary $\Aa$}
-In this section we discuss the converge of $\alpha$-BP. We start from the case binary $\Aa$ case, i.e. $\Aa=\left\{ -1, 1 \right\}$. Using the exponential potentials:
+In this section we discuss the converge of $\alpha$-BP. We start from
+the case binary $\Aa$ case, i.e. $\Aa=\left\{ -1, 1 \right\}$. Using the exponential potentials:
 \begin{align}
   \phi_{st}(x_s, x_t) &= \exp\left\{ \theta_{st}(x_s, x_t)\right\}, \\
   \phi_{s}(x_s) &= \exp\left\{ \theta_{s}(x_s) \right\}.
 \end{align}
 
-\begin{thm}
+Define a sized $2\abs{\Ee} \times 2\abs{\Ee}$ matrix $\bm{M}(\alpha, \bm{\theta})$ with its entries index by edges $(t\rightarrow s)$, and of form
+\begin{equation}
+  M_{(t\rightarrow s), (u \rightarrow v)} =
+  \begin{cases}
+    \abs{ 1 - \alpha}, &\quad u=t, v=s, \\
+    \abs{ 1 - \alpha} \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u = s, v =t, \\
+    \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u \in \Nn(t)\backslash s, v = t, \\
+    0, & \quad \mathrm{otherwise},
+  \end{cases}
+\end{equation}
+where
+\begin{equation}
+  G(\mu; \kappa) := \frac{\sinh{\kappa}}{\cosh{\kappa} + \cosh{\mu}}.
+\end{equation}
+
+\begin{thm}\label{thm:normd}
   For an arbitrary pairwise Markov random field over binary variables,
-  it the largest singular value of matrix $\bm{M}$ is less than one,
+  it the largest singular value of matrix $\bm{M}(\alpha, \bm{\theta})$ is less than one,
   then $\alpha$-BP converges to a fixed point. The associated fixed
   point is unique.
 \end{thm}
@@ -461,7 +477,7 @@ In this section we discuss the converge of $\alpha$-BP. We start from the case b
     \begin{cases}
       \abs{ 1 - \alpha}, &\quad u=t, v=s, \\
       \abs{ 1 - \alpha} \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u = s, v =t, \\
-      \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u = w, v = s, \\
+      \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u \in \Nn(t)\backslash s, v = t, \\
       0, & \quad \mathrm{otherwise}.
     \end{cases}
   \end{equation}
@@ -508,6 +524,69 @@ In this section we discuss the converge of $\alpha$-BP. We start from the case b
   \end{equation}
   which gives us $\bm{z}_0^{\ast} = \bm{z}_1^{\ast}$.
 \end{proof}
+
+\begin{rem}
+  From Theorem~\ref{thm:normd} we can see that, the sufficient condition for convergence of $\alpha$-BP is $\lambda^{\ast}(\bm{M}(\alpha, \bm{\theta})) < 1$. It is interesting to notice that $\lambda^{\ast}(\bm{M}(\alpha, \bm{\theta}))$ is a function of $\alpha$ from $\alpha$-divergence and $\bm{\theta}$. This means that whether $\alpha$-BP can converge depends on the graph $\Gg= (\Vv, \Ee)$ representing the problem itself and also the choice of $\alpha$. Therefore, proper choice of $\alpha$ can guarantee the convergence of $\alpha$-BP if the sufficient condition can possibly be fulfilled for given $\bm{\theta}$.
+\end{rem}
+
+\section{A Convergence Condition of Less Complexity for $\alpha$-BP}
+Given the fact that $\alpha$-BP would converge if the condition in Theorem~\ref{thm:normd} is fulfilled, the largest singular value computation for large-sized graph could be nontrivial. Therefore, we would give a alternative sufficient condition for the convergence of $\alpha$-BP, which is easier to check compared with condition in Theorem~\ref{thm:normd}.
+
+\begin{cor}
+  $\alpha$-BP would converge if any of the following conditions is fulfilled:
+  \begin{itemize}
+  \item a?
+  \item b?
+  \end{itemize}
+\end{cor}
+\begin{proof}
+  From inequality~\ref{eq:ratio-update-ineq}, we can have
+  \begin{align}
+    \normu{\bm{z}^{(n+1)} - \bm{z}^{n}} &\leq \normu{\bm{M}(\alpha, \bm{\theta})(\bm{z}^{(n)} - \bm{z}^{n-1})}, \nonumber \\
+    \normi{\bm{z}^{(n+1)} - \bm{z}^{n}} &\leq \normi{\bm{M}(\alpha, \bm{\theta})(\bm{z}^{(n)} - \bm{z}^{n-1})}.
+  \end{align}
+  Then we have
+  \begin{align}\label{eq:row-col-norm-ineq}
+    \normu{\bm{z}^{(n+1)} - \bm{z}^{n}} &\leq \normu{\bm{M}}\normu{(\bm{z}^{(n)} - \bm{z}^{n-1})}, \nonumber \\
+    \normi{\bm{z}^{(n+1)} - \bm{z}^{n}} &\leq \normi{\bm{M}}\normi{(\bm{z}^{(n)} - \bm{z}^{n-1})},
+  \end{align}
+  where we omit the arguments of $\bm{M}$. Recall the directed-edge-indexed matrix $\bm{M}$. We can detail the two cases in \ref{eq:row-col-norm-ineq} as follows
+  \begin{align}
+    \normu{\bm{M}} &= \umax{u \rightarrow v}{\sum_{s\rightarrow t} M_{(s\rightarrow t), (u\rightarrow v)}} = ???, \nonumber \\
+    \normi{\bm{M}} &= \umax{t \rightarrow s}{\sum_{u\rightarrow v} M_{(s\rightarrow t), (u\rightarrow v)}} = \abs{1-\alpha} (1 + \abs{G(0, 2\alpha \theta_{ts})}) + (\abs{\Nn(t)}-1)\abs{G(0, 2\alpha \theta_{ts})},
+  \end{align}
+\end{proof}
+
+\section{$\alpha$-BP with Local $\alpha$}
+In previous sections, we have been discussing the $\alpha$-BP with a global $\alpha$ value for each factor in MRF. In this section, we would consider the case that each factor of MRF has its own local $\alpha$. To be specific, when we do refinement of each factor $\phi_{st}(x_s, x_t)$ of \eqref{eq:mrf} in Section~\ref{sec:alpha-bp-factor-refine}, we use a factor-specific $\alpha_{st}$
+for the problem in \eqref{eq:alpha-minimize-factor}. We consider the case that $\alpha_{st} = \alpha_{ts}$ and $\alpha_{ts} \neq \alpha_{uv}$ for $u \neq t$ or $v \neq s$. Then following the similar steps in Subsection~\ref{sec:alpha-bp-a}, we have
+\begin{equation}\label{eq:message-rule-local}
+  {m}^{\text{new}}_{ts}(x_s) \propto  m_{ts}(x_s)^{1-\alpha_{ts}} \bigg[
+  \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha_{ts}} {m}_{st}(x_t)^{1-\alpha_{ts}} {\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg].
+\end{equation}
+
+There is a corresponding matrix
+Define a sized $2\abs{\Ee} \times 2\abs{\Ee}$ matrix $\bm{M}^{\dagger}(\alpha, \bm{\theta})$ with its entries index by edges $(t\rightarrow s)$, and of form
+\begin{equation}
+  M^{\dagger}_{(t\rightarrow s), (u \rightarrow v)} =
+  \begin{cases}
+    \abs{ 1 - \alpha_{ts}}, &\quad u=t, v=s, \\
+    \abs{ 1 - \alpha_{ts}} \abs{G(0, 2 \alpha_{ts} \theta_{ts})}, & \quad u = s, v =t, \\
+    \abs{G(0, 2 \alpha_{ts} \theta_{ts})}, & \quad u \in \Nn(t)\backslash s, v = t, \\
+    0, & \quad \mathrm{otherwise},
+  \end{cases}
+\end{equation}
+
+
+\begin{cor}\label{cor:local-alpha-bp}
+  For an arbitrary pairwise Markov random field over binary variables,
+  it the largest singular value of matrix $\bm{M}^{\dagger}(\alpha, \bm{\theta})$ is less than one,
+  then $\alpha$-BP converges to a fixed point. The associated fixed
+  point is unique.
+\end{cor}
+
+
+
 
 \bibliographystyle{IEEEtran}
 
