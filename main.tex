@@ -1,5 +1,29 @@
-\documentclass[conference,onecolumn]{IEEEtran}
-\IEEEoverridecommandlockouts
+\documentclass[twoside]{article}
+% If your paper is accepted, change the options for the package
+% aistats2020 as follows:
+%
+% \usepackage[accepted]{aistats2020}
+%
+% This option will print headings for the title of your paper and
+% headings for the authors names, plus a copyright note at the end of
+% the first column of the first page.
+
+% If you set papersize explicitly, activate the following three lines:
+%\special{papersize = 8.5in, 11in}
+%\setlength{\pdfpageheight}{11in}
+%\setlength{\pdfpagewidth}{8.5in}
+
+% If you use natbib package, activate the following three lines:
+%\usepackage[round]{natbib}
+%\renewcommand{\bibname}{References}
+%\renewcommand{\bibsection}{\subsubsection*{\bibname}}
+
+% If you use BibTeX in apalike style, activate the following line:
+%\bibliographystyle{apalike}
+
+\usepackage{aistats2020}
+
+% my own setting
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
@@ -59,9 +83,32 @@
 \captionsetup[figure]{labelformat={default},labelsep=period,name={Figure}}
 
 \begin{document}
-\title{$\alpha$ Belief Propagation as Fully Factorized Approximation}
-\author{First Hand Scientists\\
-  e-mail: doli@kth.se}
+% If your paper is accepted and the title of your paper is very long,
+% the style will print as headings an error message. Use the following
+% command to supply a shorter title of your paper so that it can be
+% used as headings.
+%
+%\runningtitle{I use this title instead because the last one was very long}
+
+% If your paper is accepted and the number of authors is large, the
+% style will print as headings an error message. Use the following
+% command to supply a shorter version of the authors names so that
+% they can be used as headings (for example, use only the surnames)
+%
+%\runningauthor{Surname 1, Surname 2, Surname 3, ...., Surname n}
+
+\twocolumn[
+
+\aistatstitle{$\alpha$ Belief Propagation as Fully Factorized Approximation}
+
+\aistatsauthor{ Dong Liu \And Minh Th{\`a}nh Vu \And  Zuxing Li \And Lars~K. Rasmussen}
+
+\aistatsaddress{ KTH Royal Institute of Technology } ]
+
+
+
+% \author{First Hand Scientists\\
+%   e-mail: doli@kth.se}
 % \author{
 % \IEEEauthorblockN{
 % Dong Liu$^{1}$, Nima N. Moghadam$^{2}$, Lars~K. Rasmussen$^{1}$, Jinliang Huang$^{2}$, Saikat Chatterjee$^{1}$}
@@ -74,8 +121,9 @@
 
 
 
-\maketitle
+
 \begin{abstract}
+  \textcolor{red}{to be rewritten}
   Belief propagation (BP) can do exact inference in loop-free graphs, but its performance could be poor in graphs with loops, and the understanding of its solution is limited.
   This work gives an interpretable belief propagation rule that is actually minimization of a localized $\alpha$-divergence. We term this algorithm as $\alpha$ belief propagation ($\alpha$-BP). % By $\alpha$-BP, any inference on a distribution $p$ is approximately answered by a fully factorized surrogate distribution $q$.
   The performance of $\alpha$-BP is tested in MAP (maximum a posterior) inference problems, where
@@ -86,7 +134,7 @@
   % a fully factorized distribution to approximate an target distribution and  obtains $\alpha$ Belief Propagation ($\alpha$-BP), which generalizes standard BP. $\alpha$-BP can be interpreted as approximating a distribution $p$ by a fully factorized distribution $q$. Then the Bayesian inference problems on $p$ (usually computational expensive) can be approximately answered by relatively simple surrogate $q$. Message passing of $\alpha$-BP is obtained by a exemplified linear model. Numerical results on \textit{maximum a posterior} inference are reported.
 \end{abstract}
 
-\section{Introduction}\label{sec:introduction}
+\section{Introduction (\textcolor{red}{to be rewritten})}\label{sec:introduction}
 Bayesian inference provides a general mathematical framework for many learning tasks such as classification, denoising, object detection, and signal detection. The wide applications include but not limited to imaging processing \cite{zhang2013denoise}, multi-input-multi-output (MIMO) signal detection in digital communication \cite{cespedes2014ep,jeon2015optimality}, inference on structured lattice \cite{10.2307/25651244}, machine learning  \cite{2018arXiv180607066M, Lin:2015:DLM:2969239.2969280, yoon2019inferenceGraph}.
 Specifically, statistic properties of a hidden variable $\bm{x} = \{x_1,\dots,x_N\}$ are of common interests in Bayesian inference. Practical interests usually include finding joint probability $p(\bm{x})$, marginal probability $p_i(x_i)$, the most probable state $\argmax_{\bm{x}} p(\bm{x})$. It can be extended to maximum a posterior (MAP) inference when it is conditional on some observation ($\argmax_{\bm{x}}p(\bm{x} | \cdot)$). Direct inference from $p(\bm{x})$ may be difficult computationally or technically. For instance, in the MAP inference problem, it could be the case that the gradient or subgradient of $p(\bm{x})$ may not exist and it is computationally prohibitive to search $\bm{x}$'s whole feasible space.
 
@@ -259,22 +307,22 @@ We do factor-wise refinement to update the factors of $q(\bm{x})$ such that $q(\
     x_s) \nonumber \\
   &\propto \prod_{{s\in \Vv}} \tilde{\phi}_s(x_s) \prod_{(v,u) \in
     \Ee\backslash (t,s)}
-    \tilde{\phi}_{vu}(x_v, x_u) \nonumber \\
-  &= \left(
-    \tilde{\phi}_s(x_s) \prod_{w\in \Nn(s) \backslash t}m_{ws}(x_s)
-    \right)
-    \left(
-    \tilde{\phi}_t(x_t) \prod_{w\in \Nn(t) \backslash s}m_{wt}(x_t)
-    \right)
-    \left(
-    \prod_{v \in \Vv \backslash s,t}
-    \tilde{\phi}_v(x_v) \prod_{w\in \Nn(v)}m_{wv}(x_v)
-    \right)\nonumber \\
+    \tilde{\phi}_{vu}(x_v, x_u).
+  % &= \left(
+  %   \tilde{\phi}_s(x_s) \prod_{w\in \Nn(s) \backslash t}m_{ws}(x_s)
+  %   \right)
+  %   \left(
+  %   \tilde{\phi}_t(x_t) \prod_{w\in \Nn(t) \backslash s}m_{wt}(x_t)
+  %   \right)
+  %   \left(
+  %   \prod_{v \in \Vv \backslash s,t}
+  %   \tilde{\phi}_v(x_v) \prod_{w\in \Nn(v)}m_{wv}(x_v)
+  %   \right)\nonumber \\
 \end{align}
 Similarly, we have $p^{\backslash (t,s)}(\bm{x})$ as all other factors except for ${\phi}_{ts}(x_t, x_s)$. Assume that we already have had $q^{\backslash (t,s)}(\bm{x})$ as a good approximation of $p^{\backslash (t,s)}(\bm{x})$, i.e. $q^{\backslash (t,s)}(\bm{x}) \simeq p^{\backslash (t,s)}(\bm{x})$, it is $\tilde{\phi}_{ts}(x_t, x_s)$ that remains to be refined. 
 Then the problem $\uargmin{\tilde{\phi}_{ts}^{\mathrm{new}}} \Dd_{\alpha_{ts}}\left(  p^{\backslash (ts)}\phi_{ts}\|q^{\backslash (t,s)}\tilde{\phi}_{ts}^{\mathrm{new}}\right)$ becomes \vspace{-0.3cm}
 \begin{equation}\label{eq:alpha-minimize-factor}
-  \uargmin{\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s)}
+  \uargmin{\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s)}\hspace{-0.2cm}
   \Dd_{\alpha_{ts}}\left( q^{\backslash (t,s)}(\bm{x}){\phi}_{ts}(x_t, x_s)
     \|q^{\backslash (t,s)}(\bm{x})\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s) \right),
 \end{equation}
@@ -282,7 +330,7 @@ which searches for new factor $\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s)$ such 
 Using \autoref{eq:fixed-point-iter}, the above problem is equivalent to
 \begin{align}\label{eq:update-rule}
   &q^{\backslash (t,s)}(\bm{x})\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s)  \nonumber\\
-  &\propto \text{proj}\left[ \left( q^{\backslash (t,s)}(\bm{x}){\phi}_{ts}(x_t, x_s) \right)^{\alpha_{ts}} \left(q^{\backslash (t,s)}(\bm{x})\tilde{\phi}_{ts}(x_t, x_s)  \right)^{1-\alpha_{ts}} \right] \nonumber \\
+  % &\propto \text{proj}\left[ \left( q^{\backslash (t,s)}(\bm{x}){\phi}_{ts}(x_t, x_s) \right)^{\alpha_{ts}} \left(q^{\backslash (t,s)}(\bm{x})\tilde{\phi}_{ts}(x_t, x_s)  \right)^{1-\alpha_{ts}} \right] \nonumber \\
   & \propto \text{proj}\left[ q^{\backslash
     (t,s)}(\bm{x}){\phi}_{ts}(x_t, x_s)^{\alpha_{ts}} \tilde{\phi}_{ts}(x_t, x_s)^{1-\alpha_{ts}} \right].
 \end{align}
@@ -292,16 +340,17 @@ Let us refine one message per time on edge $(t,s)$. Without lose of generality, 
   \tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s) = m_{ts}^{\mathrm{new}}(x_s) m_{st}(x_t).
 \end{equation}
 Since KL-projection to a fully factorized distribution reduces to matching the marginals, \autoref{eq:update-rule} is reduced to
-\begin{equation}\label{eq:message-update}
-  \sum_{\bm{x}\backslash x_s} q^{\backslash (t,s)}(\bm{x}) \tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s) \propto \sum_{\bm{x}\backslash x_s} q^{\backslash (t,s)}(\bm{x}) \phi_{ts}(x_t, x_s)^{\alpha_{ts}} \tilde{\phi}_{ts}(x_t, x_s)^{1-\alpha_{ts}}.
-\end{equation}
+\begin{align}\label{eq:message-update}
+  &\sum_{\bm{x}\backslash x_s} q^{\backslash (t,s)}(\bm{x}) \tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s) \nonumber\\
+    &\propto \sum_{\bm{x}\backslash x_s} q^{\backslash (t,s)}(\bm{x}) \phi_{ts}(x_t, x_s)^{\alpha_{ts}} \tilde{\phi}_{ts}(x_t, x_s)^{1-\alpha_{ts}}.
+\end{align}
 We use summation here. But it should be replaced by integral if $\Aa$ is a continuous set.
 Solving \autoref{eq:message-update} gives the message passing rule as
-\begin{equation}\label{eq:message-rule}
-  {m}^{\text{new}}_{ts}(x_s) \propto  m_{ts}(x_s)^{1-\alpha_{ts}} \bigg[
-  \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha_{ts}} {m}_{st}(x_t)^{1-\alpha_{ts}}
-  \tilde{\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg].
-\end{equation}
+\begin{align}\label{eq:message-rule}
+  {m}^{\text{new}}_{ts}(x_s) \propto  &m_{ts}(x_s)^{1-\alpha_{ts}} \bigg[
+  \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha_{ts}} {m}_{st}(x_t)^{1-\alpha_{ts}}\nonumber \\
+  &\tilde{\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg].
+\end{align}
 
 As for the singleton factor $\tilde{\phi}_t(x_t)$, we can do the refinement procedure on $\tilde{\phi}_t(x_t)$ in the same way as we have done for $\tilde{\phi}_{ts}(x_t, x_s)$. This gives us the update rule of $\tilde{\phi}_t(x_t)$ as
 \begin{equation}\label{eq:fix-factor-update}
@@ -310,10 +359,11 @@ As for the singleton factor $\tilde{\phi}_t(x_t)$, we can do the refinement proc
 which is the belief from factor $\phi_t(x_t)$ to variable $x_t$. Here $\alpha_t$ is the $\alpha$ value of $\alpha$-divergence in approximating factor $\phi_t(x_t)$. Note, if
 we initialize $\tilde{\phi}_t(x_t) = \phi_t(x_t)$, then it remains the
 same in all iterations, which makes
-\begin{equation}\label{eq:message-rule}
-  {m}^{\text{new}}_{ts}(x_s) \propto  m_{ts}(x_s)^{1-\alpha_{ts}} \bigg[
-  \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha_{ts}} {m}_{st}(x_t)^{1-\alpha_{ts}} {\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg].
-\end{equation}
+\begin{align}\label{eq:message-rule}
+  {m}^{\mathrm{new}}_{ts}(x_s) \propto  & m_{ts}(x_s)^{1-\alpha_{ts}} \bigg[
+                                          \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha_{ts}} {m}_{st}(x_t)^{1-\alpha_{ts}} \nonumber \\
+  &{\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg].
+\end{align}
 For factor notations, $\phi_{ts}=\phi_{st}$. We associated each factor with a $\alpha$ value, which gives us $\alpha_{ts} = \alpha_{st}$.
 
 
@@ -325,7 +375,7 @@ For factor notations, $\phi_{ts}=\phi_{st}$. We associated each factor with a $\
       \tikzstyle{nnode} = [thick, rectangle, rounded corners = 2pt,minimum size = 0.8cm,draw,inner sep = 2pt]
       \tikzstyle{cnode} = [thick, cloud, draw,cloud puffs=10, cloud puff arc=120, aspect=2, inner ysep=4pt]
 
-      \node[cnode] (paik) at (0, 1.5) {$\Nn(s)$};
+      \node[cnode] (paik) at (-2, 0) {$\Nn(s)$};
       \node[enode] (xi) at (0 ,0) {$x_s$};
       \node[nnode] (fi) at (0 , -1.5) {$\phi_s(x_s)$};
       \node[nnode] (pi) at (2, 0) {$\hat{p}_s(x_s)$};
@@ -430,14 +480,16 @@ Let us denote $\bm{\alpha}$ as the vector with entries as elements of $\left\{ \
 
   Using $^{(n)}$ to denotes the iteration $n$. Then we have
   \begin{align}\label{eq:ratio_diff_at_n}
-    z_{ts}^{(n+1)} - z_{ts}^{(n)} &= (1-\alpha_{ts}) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + f_{ts}(\bm{z}^{(n)}) - f_{ts}(\bm{z}^{(n-1)}) \nonumber \\
-                                  & = (1-\alpha_{ts}) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)}).
+    & z_{ts}^{(n+1)} - z_{ts}^{(n)} \nonumber \\
+    =& (1-\alpha_{ts}) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + f_{ts}(\bm{z}^{(n)}) - f_{ts}(\bm{z}^{(n-1)}) \nonumber \\
+    =& (1-\alpha_{ts}) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)}).
   \end{align}
 
   According to \cite{roosta2008reweighed_sum_product}, two functions (\textcolor{red}{to be written})
   \begin{align}
     H(\mu; \kappa) &:= \log \frac{exp(\mu + \kappa) +1}{exp(\mu) + exp(\kappa)}, \nonumber \\
-    G(\mu; \kappa) &:= \frac{exp(\mu + \kappa)}{exp(\mu + \kappa) + 1} - \frac{exp(\mu)}{exp(\mu) + exp(\kappa)} = \frac{\sinh{\kappa}}{\cosh{\kappa} + \cosh{\mu}},
+    G(\mu; \kappa) &:= \frac{exp(\mu + \kappa)}{exp(\mu + \kappa) + 1} - \frac{exp(\mu)}{exp(\mu) + exp(\kappa)} \nonumber \\
+    &= \frac{\sinh{\kappa}}{\cosh{\kappa} + \cosh{\mu}},
   \end{align}
   where it holds that
   \begin{equation}
@@ -460,30 +512,34 @@ Let us denote $\bm{\alpha}$ as the vector with entries as elements of $\left\{ \
 
   From \eqref{eq:ratio_diff_at_n}, we have
   \begin{align}\label{eq:ratio_cvg_step}
-    \abs{z_{ts}^{(n+1)} - z_{ts}^{(n)}} & = \abs{(1-\alpha_{ts}) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
+    &\abs{z_{ts}^{(n+1)} - z_{ts}^{(n)}} \nonumber\\
+    & = \abs{(1-\alpha_{ts}) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
                                         & \leq \abs{(1-\alpha_{ts}) (z_{ts}^{(n)} - z_{ts}^{(n-1)})} + \abs{\nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
                                         & = \abs{ 1 - \alpha_{ts}} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{\nabla f_{ts}(\bm{z}^{\lambda})}^{T} \abs{\bm{z}^{(n)} - \bm{z}^{(n-1)}} \nonumber \\
-                                        & \leq \abs{ 1 - \alpha_{ts}} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{ 1 - \alpha_{ts}} \abs{G(0, 2 \alpha_{ts} \theta_{ts})} \abs{z_{st}^{(n)} - z_{st}^{(n-1)}} + \sum_{w\in N(t)\backslash s} \abs{G(0, 2 \alpha_{ts} \theta_{ts})} \abs{z_{wt}^{(n)} - z_{wt}^{(n-1)}}.
+    & \leq \abs{ 1 - \alpha_{ts}} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} \nonumber \\
+    &+ \abs{ 1 - \alpha_{ts}} \tanh\abs{\alpha_{ts} \theta_{ts}} \abs{z_{st}^{(n)} - z_{st}^{(n-1)}} \nonumber \\
+    &+ \sum_{w\in N(t)\backslash s} \tanh\abs{\alpha_{ts} \theta_{ts}} \abs{z_{wt}^{(n)} - z_{wt}^{(n-1)}}.
   \end{align}
 
   Define a sized $2\abs{\Ee} \times 2\abs{\Ee}$ matrix $\bm{M}(\bm{\alpha}, \bm{\theta})$ with its entries index by edges $(t\rightarrow s)$, and of form
-  \begin{equation}
-    M_{(t\rightarrow s), (u \rightarrow v)} =
+  \begin{align}
+    &M_{(t\rightarrow s), (u \rightarrow v)} \nonumber\\&=
     \begin{cases}
       \abs{ 1 - \alpha_{ts}}, &\quad u=t, v=s, \\
       \abs{ 1 - \alpha_{ts}} \abs{G(0, 2 \alpha_{ts} \theta_{ts})}, & \quad u = s, v =t, \\
       \abs{G(0, 2 \alpha_{ts} \theta_{ts})}, & \quad u \in \Nn(t)\backslash s, v = t, \\
       0, & \quad \mathrm{otherwise}.
     \end{cases}
-  \end{equation}
+  \end{align}
   Then \eqref{eq:ratio_cvg_step} can be simplified as
   \begin{equation}\label{eq:ratio-update-ineq}
     \abs{\bm{z}^{(n+1)} - \bm{z}^{n}} \leq \bm{M}(\alpha, \bm{\theta})\abs{\bm{z}^{(n)} - \bm{z}^{n-1}},
   \end{equation}
   where $\bm{\theta}$ is the vector with elements $\left\{ \theta_{vu}| v, u \in \Vv \right\}$ and $\leq$ in \eqref{eq:ratio-update-ineq} denotes the element-wise inequality. From \eqref{eq:ratio-update-ineq}, we could have
-  \begin{equation}
-    \normd{\bm{z}^{(n+1)} - \bm{z}^{n}} \leq \normd{\bm{M}(\alpha, \bm{\theta})(\bm{z}^{(n)} - \bm{z}^{n-1})} \leq \lambda^{\ast}(\bm{M})\normd{\bm{z}^{(n)} - \bm{z}^{n-1}},
-  \end{equation}
+  \begin{align}
+    \normd{\bm{z}^{(n+1)} - \bm{z}^{n}} &\leq \normd{\bm{M}(\alpha, \bm{\theta})(\bm{z}^{(n)} - \bm{z}^{n-1})} \nonumber \\
+    &\leq \lambda^{\ast}(\bm{M})\normd{\bm{z}^{(n)} - \bm{z}^{n-1}},
+  \end{align}
   where $\lambda^{\ast}(\bm{M})$ is the largest singular value of matrix
   $\bm{M}$, and $\normd{\cdot}$ is Euclidean norm. If the largest singular value of $\bm{M}$ is less than $1$, the sequence
   $\left\{\abs{\bm{z}^{(n+1)} - \bm{z}^{(n)}}\right\}$ converges to zero. Therefore, for $\lambda^{\ast}(\bm{M})<1$, the sequence $\left\{ \bm{z}^{(n)} \right\}$ is a Cauchy sequence and must converge. Let us denote vector with elements $\left\{ F_{st} \right\}$ by $\bm{F}$. $\bm{F}$ is a continuous function of $\bm{z}$. Then we have
@@ -529,13 +585,15 @@ Given the fact that $\alpha$-BP would converge if the condition in Theorem~\ref{
 
 \begin{cor}
   $\alpha$-BP would converge if any of the following conditions is fulfilled:
-  \begin{equation}
-    \umax{u \rightarrow v}\abs{1-\alpha_{uv}} + \abs{1-\alpha_{vu}}\tanh{\abs{\alpha_{vu} \theta_{vu}}} + \sum_{w \Nn(v) \backslash u} \tanh{\abs{\alpha_{{vw}} \theta_{vw}}} < 1,
-  \end{equation}
+  \begin{align}
+    \umax{u \rightarrow v} & \abs{1-\alpha_{uv}} + \abs{1-\alpha_{vu}}\tanh{\abs{\alpha_{vu} \theta_{vu}}} \nonumber \\
+    &+ \sum_{w \Nn(v) \backslash u} \tanh{\abs{\alpha_{{vw}} \theta_{vw}}} < 1,
+  \end{align}
   or
-  \begin{equation}
-    \umax{t \rightarrow s} \abs{1-\alpha_{ts}} (1 + \tanh\abs{\alpha_{ts} \theta_{ts}}) + (\abs{\Nn(t)}-1)\tanh\abs{\alpha_{ts} \theta_{ts}} < 1.
-  \end{equation}
+  \begin{align}
+    \umax{t \rightarrow s} &\abs{1-\alpha_{ts}} (1 + \tanh\abs{\alpha_{ts} \theta_{ts}}) \nonumber \\
+    &+ (\abs{\Nn(t)}-1)\tanh\abs{\alpha_{ts} \theta_{ts}} < 1.
+  \end{align}
 
 \end{cor}
 
@@ -552,8 +610,12 @@ Given the fact that $\alpha$-BP would converge if the condition in Theorem~\ref{
   \end{align}
   where we omit the arguments of $\bm{M}$. Recall the directed-edge-indexed matrix $\bm{M}$. We can detail the two cases in \ref{eq:row-col-norm-ineq} as follows
   \begin{align}
-    \normu{\bm{M}} &= \umax{u \rightarrow v}{\sum_{t\rightarrow s} M_{(t\rightarrow s), (u\rightarrow v)}} = \umax{u \rightarrow v}\abs{1-\alpha_{uv}} + \abs{1-\alpha_{vu}}\tanh{\abs{\alpha_{vu} \theta_{vu}}} + \sum_{w \Nn(v) \backslash u} \tanh{\abs{\alpha_{{vw}} \theta_{vw}}}, \nonumber \\
-    \normi{\bm{M}} &= \umax{t \rightarrow s}{\sum_{u\rightarrow v} M_{(t\rightarrow s), (u\rightarrow v)}} = \umax{t \rightarrow s} \abs{1-\alpha_{ts}} (1 + \tanh\abs{\alpha_{ts} \theta_{ts}}) + (\abs{\Nn(t)}-1)\tanh\abs{\alpha_{ts} \theta_{ts}}.
+    \normu{\bm{M}} =& \umax{u \rightarrow v}{\sum_{t\rightarrow s} M_{(t\rightarrow s), (u\rightarrow v)}} \nonumber \\
+                   =& \umax{u \rightarrow v}\abs{1-\alpha_{uv}} + \abs{1-\alpha_{vu}}\tanh{\abs{\alpha_{vu} \theta_{vu}}} \nonumber \\
+    &+ \sum_{w \Nn(v) \backslash u} \tanh{\abs{\alpha_{{vw}} \theta_{vw}}}, \nonumber \\
+    \normi{\bm{M}} =& \umax{t \rightarrow s}{\sum_{u\rightarrow v} M_{(t\rightarrow s), (u\rightarrow v)}} \nonumber \\
+    =& \umax{t \rightarrow s} \abs{1-\alpha_{ts}} (1 + \tanh\abs{\alpha_{ts} \theta_{ts}}) \nonumber \\
+    &+ (\abs{\Nn(t)}-1)\tanh\abs{\alpha_{ts} \theta_{ts}}.
   \end{align}
   When condition $\normu{\bm{M}} < 1$ is met, sequence $\{\abs{\bm{z}^{(n+1)} - \bm{z}^{n}}\}$ approaches to zero as $n\rightarrow \infty$. Similarly, condition $\normi{\bm{M}}<1$ can also guarantee the convergence to zero of sequence $\{\abs{\bm{z}^{(n+1)} - \bm{z}^{n}}\}$.
   
@@ -562,10 +624,11 @@ Given the fact that $\alpha$-BP would converge if the condition in Theorem~\ref{
 \section{$\alpha$-BP with Local $\alpha$}
 In previous sections, we have been discussing the $\alpha$-BP with a local $\alpha$ value for each factor in MRF. In this section, we would consider the case that MRF has its global $\alpha$. To be specific, when we do refinement of each factor $\phi_{st}(x_s, x_t)$ of \eqref{eq:mrf} in Section~\ref{sec:alpha-bp-factor-refine}, we use the same $\alpha$
 for the problem in \eqref{eq:alpha-minimize-factor}. 
-\begin{equation}\label{eq:message-rule-global}
-  {m}^{\text{new}}_{ts}(x_s) \propto  m_{ts}(x_s)^{1-\alpha} \bigg[
-  \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha} {m}_{st}(x_t)^{1-\alpha} {\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg].
-\end{equation}
+\begin{align}\label{eq:message-rule-global}
+  {m}^{\text{new}}_{ts}(x_s) \propto & m_{ts}(x_s)^{1-\alpha} \bigg[
+                                       \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha} {m}_{st}(x_t)^{1-\alpha}\nonumber\\
+  &{\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg].
+\end{align}
 
 There is a corresponding matrix
 Define a sized $2\abs{\Ee} \times 2\abs{\Ee}$ matrix $\bm{M}^{\dagger}(\bm{\alpha}, \bm{\theta})$ with its entries index by edges $(t\rightarrow s)$, and of form
@@ -598,8 +661,9 @@ Similar we also have the alternative sufficient condition for $\alpha$-BP with g
   \begin{equation}
     \umax{t \rightarrow s} \abs{1-\alpha} (1 + \tanh\abs{\alpha \theta_{ts}}) + (\abs{\Nn(t)}-1)\tanh\abs{\alpha \theta_{ts}} < 1.
   \end{equation}
-
-
+\end{cor}
+\section{Experiments}
+\section{Conclusion}
 
 \bibliographystyle{IEEEtran}
 
