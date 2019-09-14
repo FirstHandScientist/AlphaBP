@@ -252,7 +252,7 @@ We use the notation $m_{ts}(x_s)$ to denote the factor as a function of $x_s$ du
 
 Now, we are going to use the heuristic scheme as in \autoref{eq:fixed-point-iter} to minimize the information loss by using tractable $q(\bm{x})$ to represent $p(\bm{x})$. The information loss is measured by $\alpha$-divergence $\Dd_{\alpha}(p(\bm{x}) \| q(\bm{x}))$.
 
-We do factor-wise refinement to update the factors of $q(\bm{x})$ such that $q(\bm{x})$ approaches $p(\bm{x})$ asymptotically similar to \cite{divergence-measures-and-message-passing,Minka:2001:EPA:647235.720257}. Without losing generality, we begin to refine factor $\tilde{\phi}_{ts}(x_t, x_s)$. Define $q^{\backslash (t,s)}(\bm{x})$ as all other factors except for $\tilde{\phi}_{ts}(x_t, x_s)$
+We do factor-wise refinement to update the factors of $q(\bm{x})$ such that $q(\bm{x})$ approaches $p(\bm{x})$ asymptotically similar to \cite{divergence-measures-and-message-passing,Minka:2001:EPA:647235.720257}. Without losing generality, we begin to refine factor $\tilde{\phi}_{ts}(x_t, x_s)$. When doing the refinement of factor $\tilde{\phi}_{ts}(x_t, x_s)$, parameter $\alpha_{ts}$ is used. Define $q^{\backslash (t,s)}(\bm{x})$ as all other factors except for $\tilde{\phi}_{ts}(x_t, x_s)$
 \begin{align}
   q^{\backslash (t,s)}(\bm{x})
   &= q(\bm{x})/\tilde{\phi}_{ts}(x_t,
@@ -272,19 +272,19 @@ We do factor-wise refinement to update the factors of $q(\bm{x})$ such that $q(\
     \right)\nonumber \\
 \end{align}
 Similarly, we have $p^{\backslash (t,s)}(\bm{x})$ as all other factors except for ${\phi}_{ts}(x_t, x_s)$. Assume that we already have had $q^{\backslash (t,s)}(\bm{x})$ as a good approximation of $p^{\backslash (t,s)}(\bm{x})$, i.e. $q^{\backslash (t,s)}(\bm{x}) \simeq p^{\backslash (t,s)}(\bm{x})$, it is $\tilde{\phi}_{ts}(x_t, x_s)$ that remains to be refined. 
-Then the problem $\uargmin{\tilde{\phi}_{ts}^{\mathrm{new}}} \Dd_{\alpha}\left(  p^{\backslash (ts)}\phi_{ts}\|q^{\backslash (t,s)}\tilde{\phi}_{ts}^{\mathrm{new}}\right)$ becomes \vspace{-0.3cm}
+Then the problem $\uargmin{\tilde{\phi}_{ts}^{\mathrm{new}}} \Dd_{\alpha_{ts}}\left(  p^{\backslash (ts)}\phi_{ts}\|q^{\backslash (t,s)}\tilde{\phi}_{ts}^{\mathrm{new}}\right)$ becomes \vspace{-0.3cm}
 \begin{equation}\label{eq:alpha-minimize-factor}
   \uargmin{\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s)}
-  \Dd_{\alpha}\left( q^{\backslash (t,s)}(\bm{x}){\phi}_{ts}(x_t, x_s)
+  \Dd_{\alpha_{ts}}\left( q^{\backslash (t,s)}(\bm{x}){\phi}_{ts}(x_t, x_s)
     \|q^{\backslash (t,s)}(\bm{x})\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s) \right),
 \end{equation}
 which searches for new factor $\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s)$ such the above divergence is minimized.
 Using \autoref{eq:fixed-point-iter}, the above problem is equivalent to
 \begin{align}\label{eq:update-rule}
   &q^{\backslash (t,s)}(\bm{x})\tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s)  \nonumber\\
-  &\propto \text{proj}\left[ \left( q^{\backslash (t,s)}(\bm{x}){\phi}_{ts}(x_t, x_s) \right)^{\alpha} \left(q^{\backslash (t,s)}(\bm{x})\tilde{\phi}_{ts}(x_t, x_s)  \right)^{1-\alpha} \right] \nonumber \\
+  &\propto \text{proj}\left[ \left( q^{\backslash (t,s)}(\bm{x}){\phi}_{ts}(x_t, x_s) \right)^{\alpha_{ts}} \left(q^{\backslash (t,s)}(\bm{x})\tilde{\phi}_{ts}(x_t, x_s)  \right)^{1-\alpha_{ts}} \right] \nonumber \\
   & \propto \text{proj}\left[ q^{\backslash
-    (t,s)}(\bm{x}){\phi}_{ts}(x_t, x_s)^{\alpha} \tilde{\phi}_{ts}(x_t, x_s)^{1-\alpha} \right].
+    (t,s)}(\bm{x}){\phi}_{ts}(x_t, x_s)^{\alpha_{ts}} \tilde{\phi}_{ts}(x_t, x_s)^{1-\alpha_{ts}} \right].
 \end{align}
 
 Let us refine one message per time on edge $(t,s)$. Without lose of generality, we update $m_{ts}$ and denote
@@ -293,28 +293,28 @@ Let us refine one message per time on edge $(t,s)$. Without lose of generality, 
 \end{equation}
 Since KL-projection to a fully factorized distribution reduces to matching the marginals, \autoref{eq:update-rule} is reduced to
 \begin{equation}\label{eq:message-update}
-  \sum_{\bm{x}\backslash x_s} q^{\backslash (t,s)}(\bm{x}) \tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s) \propto \sum_{\bm{x}\backslash x_s} q^{\backslash (t,s)}(\bm{x}) \phi_{ts}(x_t, x_s)^{\alpha} \tilde{\phi}_{ts}(x_t, x_s)^{1-\alpha}.
+  \sum_{\bm{x}\backslash x_s} q^{\backslash (t,s)}(\bm{x}) \tilde{\phi}_{ts}^{\mathrm{new}}(x_t, x_s) \propto \sum_{\bm{x}\backslash x_s} q^{\backslash (t,s)}(\bm{x}) \phi_{ts}(x_t, x_s)^{\alpha_{ts}} \tilde{\phi}_{ts}(x_t, x_s)^{1-\alpha_{ts}}.
 \end{equation}
 We use summation here. But it should be replaced by integral if $\Aa$ is a continuous set.
 Solving \autoref{eq:message-update} gives the message passing rule as
 \begin{equation}\label{eq:message-rule}
-  {m}^{\text{new}}_{ts}(x_s) \propto  m_{ts}(x_s)^{1-\alpha} \bigg[
-  \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha} {m}_{st}(x_t)^{1-\alpha}
+  {m}^{\text{new}}_{ts}(x_s) \propto  m_{ts}(x_s)^{1-\alpha_{ts}} \bigg[
+  \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha_{ts}} {m}_{st}(x_t)^{1-\alpha_{ts}}
   \tilde{\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg].
 \end{equation}
 
 As for the singleton factor $\tilde{\phi}_t(x_t)$, we can do the refinement procedure on $\tilde{\phi}_t(x_t)$ in the same way as we have done for $\tilde{\phi}_{ts}(x_t, x_s)$. This gives us the update rule of $\tilde{\phi}_t(x_t)$ as
 \begin{equation}\label{eq:fix-factor-update}
-  \tilde{\phi}_t^{\text{new}}(x_t) \propto \phi_t(x_t)^{\alpha} \tilde{\phi}_t(x_t)^{1-\alpha},
+  \tilde{\phi}_t^{\mathrm{new}}(x_t) \propto \phi_t(x_t)^{\alpha_{t}} \tilde{\phi}_t(x_t)^{1-\alpha_{t}},
 \end{equation}
-which is the belief from factor $\phi_t(x_t)$ to variable $x_t$. Note, if
+which is the belief from factor $\phi_t(x_t)$ to variable $x_t$. Here $\alpha_t$ is the $\alpha$ value of $\alpha$-divergence in approximating factor $\phi_t(x_t)$. Note, if
 we initialize $\tilde{\phi}_t(x_t) = \phi_t(x_t)$, then it remains the
 same in all iterations, which makes
 \begin{equation}\label{eq:message-rule}
-  {m}^{\text{new}}_{ts}(x_s) \propto  m_{ts}(x_s)^{1-\alpha} \bigg[
-  \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha} {m}_{st}(x_t)^{1-\alpha} {\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg].
+  {m}^{\text{new}}_{ts}(x_s) \propto  m_{ts}(x_s)^{1-\alpha_{ts}} \bigg[
+  \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha_{ts}} {m}_{st}(x_t)^{1-\alpha_{ts}} {\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg].
 \end{equation}
-
+For factor notations, $\phi_{ts}=\phi_{st}$. We associated each factor with a $\alpha$ value, which gives us $\alpha_{ts} = \alpha_{st}$.
 
 
 \subsection{Remarks on $\alpha$-BP}\label{subsec:remark}
@@ -339,7 +339,7 @@ same in all iterations, which makes
   \end{centering}
 \end{figure}
 
-As discussed in Section~\ref{sec:preliminary}, $KL(p\|q)$ is the special case of $\Dd_{\alpha}(p\|q)$ when $\alpha \rightarrow 1$. When applying $\alpha=1$ to \autoref{eq:message-rule}, it gives
+As discussed in Section~\ref{sec:preliminary}, $KL(p\|q)$ is the special case of $\Dd_{\alpha}(p\|q)$ when $\alpha \rightarrow 1$. When applying $\alpha_{st}=1$, $\forall\; (s,t) \in \Ee$, to \autoref{eq:message-rule}, it gives
 \begin{equation}
   {m}^{\text{new}}_{ts}(x_s) \propto \bigg[
   \sum_{x_t} \phi_{st}(x_s, x_t) {\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg],
@@ -377,24 +377,19 @@ the case binary $\Aa$ case, i.e. $\Aa=\left\{ -1, 1 \right\}$. Using the exponen
   \phi_{s}(x_s) &= \exp\left\{ \theta_{s}(x_s) \right\}.
 \end{align}
 
-Define a sized $2\abs{\Ee} \times 2\abs{\Ee}$ matrix $\bm{M}(\alpha, \bm{\theta})$ with its entries index by edges $(t\rightarrow s)$, and of form
+Let us denote $\bm{\alpha}$ as the vector with entries as elements of $\left\{ \alpha_{ts} | (t ,s) \in \Ee \right\}$,  $\bm{\theta}$ as the vector with entries as elements of $\left\{ \theta_{ts} | (t ,s) \in \Ee \right\}$. Define a sized $2\abs{\Ee} \times 2\abs{\Ee}$ matrix $\bm{M}(\bm{\alpha}, \bm{\theta})$ with its entries index by edges $(t\rightarrow s)$, and of form
 \begin{equation}
   M_{(t\rightarrow s), (u \rightarrow v)} =
   \begin{cases}
-    \abs{ 1 - \alpha}, &\quad u=t, v=s, \\
-    \abs{ 1 - \alpha} \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u = s, v =t, \\
-    \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u \in \Nn(t)\backslash s, v = t, \\
-    0, & \quad \mathrm{otherwise},
+    \abs{ 1 - \alpha_{ts}}, &\quad u=t, v=s, \\
+    \abs{ 1 - \alpha_{ts}} \tanh \abs{\alpha_{ts} \theta_{ts}}, & \quad u = s, v =t, \\
+    \tanh\abs{\alpha_{ts} \theta_{ts}}, & \quad u \in \Nn(t)\backslash s, v = t, \\
+    0, & \quad \mathrm{otherwise}.
   \end{cases}
 \end{equation}
-where
-\begin{equation}
-  G(\mu; \kappa) := \frac{\sinh{\kappa}}{\cosh{\kappa} + \cosh{\mu}}.
-\end{equation}
-
 \begin{thm}\label{thm:normd}
   For an arbitrary pairwise Markov random field over binary variables,
-  it the largest singular value of matrix $\bm{M}(\alpha, \bm{\theta})$ is less than one,
+  it the largest singular value of matrix $\bm{M}(\bm{\alpha}, \bm{\theta})$ is less than one,
   then $\alpha$-BP converges to a fixed point. The associated fixed
   point is unique.
 \end{thm}
@@ -407,10 +402,10 @@ where
   \end{equation}
   Substituting \eqref{eq:message-rule} into \eqref{eq:log-ratio-uv} gives
   \begin{align}
-    &F_{ts}(\bm{z}) = (1- \alpha)z_{ts} + \\
-    &\log\frac{\exp\left\{ \alpha\left[ \theta_{ts}(1,1) - \theta_{ts}(-1,1) \right] + \theta_t(1) - \theta_t(-1) + (1 - \alpha)z_{st} + \sum_{w\in \Nn(t)\backslash s} z_{wt} \right\}+1}
-      {\exp\left\{ \alpha\left[ \theta_{ts}(1,-1) - \theta_{ts}(-1,1) \right] + \theta_t(1) - \theta_t(-1) + (1 - \alpha)z_{st} + \sum_{w\in \Nn(t)\backslash s} z_{wt} \right\} +
-      \exp\left\{ \alpha\left[ \theta_{ts}(-1,-1) - \theta_{ts}(-1,1) \right] \right\}},
+    &F_{ts}(\bm{z}) = (1- \alpha_{ts})z_{ts} + \\
+    &\log\frac{\exp\left\{ \alpha_{ts}\left[ \theta_{ts}(1,1) - \theta_{ts}(-1,1) \right] + \theta_t(1) - \theta_t(-1) + (1 - \alpha_{ts})z_{st} + \sum_{w\in \Nn(t)\backslash s} z_{wt} \right\}+1}
+      {\exp\left\{ \alpha_{ts}\left[ \theta_{ts}(1,-1) - \theta_{ts}(-1,1) \right] + \theta_t(1) - \theta_t(-1) + (1 - \alpha_{ts})z_{st} + \sum_{w\in \Nn(t)\backslash s} z_{wt} \right\} +
+      \exp\left\{ \alpha_{ts}\left[ \theta_{ts}(-1,-1) - \theta_{ts}(-1,1) \right] \right\}},
   \end{align}
   where $\bm{z}$ is vector with element entry $z_{vu}, v,u \in \Vv$.
   Further assume the symmetric property of potentials
@@ -420,26 +415,26 @@ where
   \end{align}
   With the symmetric property, the log ratio updates for $z_{ts}$ can be reduced as
   \begin{equation}\label{eq:ratio-update}
-    F_{ts}(\bm{z}) = (1-\alpha) z_{ts} + f_{ts}(\bm{z}),
+    F_{ts}(\bm{z}) = (1-\alpha_{ts}) z_{ts} + f_{ts}(\bm{z}),
   \end{equation}
   where
   \begin{equation}
-    f_{ts}(\bm{z}) = \log\frac{\exp\left\{ 2 \alpha \theta_{ts} + \Delta_{ts}(\bm{z}) \right\}+1}
+    f_{ts}(\bm{z}) = \log\frac{\exp\left\{ 2 \alpha_{ts} \theta_{ts} + \Delta_{ts}(\bm{z}) \right\}+1}
     {\exp\left\{ \Delta_{ts}(\bm{z}) \right\} +
-      \exp\left\{ 2 \alpha \theta_{ts} \right\}},
+      \exp\left\{ 2 \alpha_{ts} \theta_{ts} \right\}},
   \end{equation}
   with
   \begin{equation}
-    \Delta_{ts}(\bm{z}) = 2 \theta_s + (1 - \alpha) z_{st} + \sum_{w\in \Nn(u)\backslash t} z_{wt}.
+    \Delta_{ts}(\bm{z}) = 2 \theta_s + (1 - \alpha_{ts}) z_{st} + \sum_{w\in \Nn(u)\backslash t} z_{wt}.
   \end{equation}
 
   Using $^{(n)}$ to denotes the iteration $n$. Then we have
   \begin{align}\label{eq:ratio_diff_at_n}
-    z_{ts}^{(n+1)} - z_{ts}^{(n)} &= (1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + f_{ts}(\bm{z}^{(n)}) - f_{ts}(\bm{z}^{(n-1)}) \nonumber \\
-                                  & = (1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)}).
+    z_{ts}^{(n+1)} - z_{ts}^{(n)} &= (1-\alpha_{ts}) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + f_{ts}(\bm{z}^{(n)}) - f_{ts}(\bm{z}^{(n-1)}) \nonumber \\
+                                  & = (1-\alpha_{ts}) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)}).
   \end{align}
 
-  According to \cite{roosta2008reweighed_sum_product}, two functions
+  According to \cite{roosta2008reweighed_sum_product}, two functions (\textcolor{red}{to be written})
   \begin{align}
     H(\mu; \kappa) &:= \log \frac{exp(\mu + \kappa) +1}{exp(\mu) + exp(\kappa)}, \nonumber \\
     G(\mu; \kappa) &:= \frac{exp(\mu + \kappa)}{exp(\mu + \kappa) + 1} - \frac{exp(\mu)}{exp(\mu) + exp(\kappa)} = \frac{\sinh{\kappa}}{\cosh{\kappa} + \cosh{\mu}},
@@ -456,8 +451,8 @@ where
   \begin{equation}\label{eq:F_pd}
     \pd{F_{ts}(\bm{z})}{z}=
     \begin{cases}
-      1 - \alpha, &\quad z = z_{ts}  \\
-      ( 1 - \alpha) \pd{f_{ts}(\bm{z})}{\Delta_{ts}}, &\quad z = z_{st} \\
+      1 - \alpha_{ts}, &\quad z = z_{ts}  \\
+      ( 1 - \alpha_{ts}) \pd{f_{ts}(\bm{z})}{\Delta_{ts}}, &\quad z = z_{st} \\
       \pd{f_{ts}(\bm{z})}{\Delta_{ts}}, &\quad z = z_{wt}, w\in N(t)\backslash s.
     \end{cases}
   \end{equation}
@@ -465,19 +460,19 @@ where
 
   From \eqref{eq:ratio_diff_at_n}, we have
   \begin{align}\label{eq:ratio_cvg_step}
-    \abs{z_{ts}^{(n+1)} - z_{ts}^{(n)}} & = \abs{(1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
-                                        & \leq \abs{(1-\alpha) (z_{ts}^{(n)} - z_{ts}^{(n-1)})} + \abs{\nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
-                                        & = \abs{ 1 - \alpha} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{\nabla f_{ts}(\bm{z}^{\lambda})}^{T} \abs{\bm{z}^{(n)} - \bm{z}^{(n-1)}} \nonumber \\
-                                        & \leq \abs{ 1 - \alpha} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{ 1 - \alpha} \abs{G(0, 2 \alpha \theta_{ts})} \abs{z_{st}^{(n)} - z_{st}^{(n-1)}} + \sum_{w\in N(t)\backslash s} \abs{G(0, 2 \alpha \theta_{ts})} \abs{z_{wt}^{(n)} - z_{wt}^{(n-1)}}.
+    \abs{z_{ts}^{(n+1)} - z_{ts}^{(n)}} & = \abs{(1-\alpha_{ts}) (z_{ts}^{(n)} - z_{ts}^{(n-1)}) + \nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
+                                        & \leq \abs{(1-\alpha_{ts}) (z_{ts}^{(n)} - z_{ts}^{(n-1)})} + \abs{\nabla f_{ts}(\bm{z}^{\lambda})^{T} (\bm{z}^{(n)} - \bm{z}^{(n-1)})} \nonumber \\
+                                        & = \abs{ 1 - \alpha_{ts}} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{\nabla f_{ts}(\bm{z}^{\lambda})}^{T} \abs{\bm{z}^{(n)} - \bm{z}^{(n-1)}} \nonumber \\
+                                        & \leq \abs{ 1 - \alpha_{ts}} \abs{z_{ts}^{(n)} - z_{ts}^{(n-1)}} + \abs{ 1 - \alpha_{ts}} \abs{G(0, 2 \alpha_{ts} \theta_{ts})} \abs{z_{st}^{(n)} - z_{st}^{(n-1)}} + \sum_{w\in N(t)\backslash s} \abs{G(0, 2 \alpha_{ts} \theta_{ts})} \abs{z_{wt}^{(n)} - z_{wt}^{(n-1)}}.
   \end{align}
 
-  Define a sized $2\abs{\Ee} \times 2\abs{\Ee}$ matrix $\bm{M}(\alpha, \bm{\theta})$ with its entries index by edges $(t\rightarrow s)$, and of form
+  Define a sized $2\abs{\Ee} \times 2\abs{\Ee}$ matrix $\bm{M}(\bm{\alpha}, \bm{\theta})$ with its entries index by edges $(t\rightarrow s)$, and of form
   \begin{equation}
     M_{(t\rightarrow s), (u \rightarrow v)} =
     \begin{cases}
-      \abs{ 1 - \alpha}, &\quad u=t, v=s, \\
-      \abs{ 1 - \alpha} \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u = s, v =t, \\
-      \abs{G(0, 2 \alpha \theta_{ts})}, & \quad u \in \Nn(t)\backslash s, v = t, \\
+      \abs{ 1 - \alpha_{ts}}, &\quad u=t, v=s, \\
+      \abs{ 1 - \alpha_{ts}} \abs{G(0, 2 \alpha_{ts} \theta_{ts})}, & \quad u = s, v =t, \\
+      \abs{G(0, 2 \alpha_{ts} \theta_{ts})}, & \quad u \in \Nn(t)\backslash s, v = t, \\
       0, & \quad \mathrm{otherwise}.
     \end{cases}
   \end{equation}
@@ -534,11 +529,16 @@ Given the fact that $\alpha$-BP would converge if the condition in Theorem~\ref{
 
 \begin{cor}
   $\alpha$-BP would converge if any of the following conditions is fulfilled:
-  \begin{itemize}
-  \item a?
-  \item b?
-  \end{itemize}
+  \begin{equation}
+    \umax{u \rightarrow v}\abs{1-\alpha_{uv}} + \abs{1-\alpha_{vu}}\tanh{\abs{\alpha_{vu} \theta_{vu}}} + \sum_{w \Nn(v) \backslash u} \tanh{\abs{\alpha_{{vw}} \theta_{vw}}} < 1,
+  \end{equation}
+  or
+  \begin{equation}
+    \umax{t \rightarrow s} \abs{1-\alpha_{ts}} (1 + \tanh\abs{\alpha_{ts} \theta_{ts}}) + (\abs{\Nn(t)}-1)\tanh\abs{\alpha_{ts} \theta_{ts}} < 1.
+  \end{equation}
+
 \end{cor}
+
 \begin{proof}
   From inequality~\ref{eq:ratio-update-ineq}, we can have
   \begin{align}
@@ -552,39 +552,52 @@ Given the fact that $\alpha$-BP would converge if the condition in Theorem~\ref{
   \end{align}
   where we omit the arguments of $\bm{M}$. Recall the directed-edge-indexed matrix $\bm{M}$. We can detail the two cases in \ref{eq:row-col-norm-ineq} as follows
   \begin{align}
-    \normu{\bm{M}} &= \umax{u \rightarrow v}{\sum_{s\rightarrow t} M_{(s\rightarrow t), (u\rightarrow v)}} = \abs{1-\alpha}(1 + \tanh{\abs{\alpha \theta_{vu}}}) + \sum_{w \Nn(v) \backslash u} \tanh{\abs{\alpha \theta_{vw}}}, \nonumber \\
-    \normi{\bm{M}} &= \umax{t \rightarrow s}{\sum_{u\rightarrow v} M_{(s\rightarrow t), (u\rightarrow v)}} = \abs{1-\alpha} (1 + \abs{G(0, 2\alpha \theta_{ts})}) + (\abs{\Nn(t)}-1)\abs{G(0, 2\alpha \theta_{ts})},
+    \normu{\bm{M}} &= \umax{u \rightarrow v}{\sum_{t\rightarrow s} M_{(t\rightarrow s), (u\rightarrow v)}} = \umax{u \rightarrow v}\abs{1-\alpha_{uv}} + \abs{1-\alpha_{vu}}\tanh{\abs{\alpha_{vu} \theta_{vu}}} + \sum_{w \Nn(v) \backslash u} \tanh{\abs{\alpha_{{vw}} \theta_{vw}}}, \nonumber \\
+    \normi{\bm{M}} &= \umax{t \rightarrow s}{\sum_{u\rightarrow v} M_{(t\rightarrow s), (u\rightarrow v)}} = \umax{t \rightarrow s} \abs{1-\alpha_{ts}} (1 + \tanh\abs{\alpha_{ts} \theta_{ts}}) + (\abs{\Nn(t)}-1)\tanh\abs{\alpha_{ts} \theta_{ts}}.
   \end{align}
+  When condition $\normu{\bm{M}} < 1$ is met, sequence $\{\abs{\bm{z}^{(n+1)} - \bm{z}^{n}}\}$ approaches to zero as $n\rightarrow \infty$. Similarly, condition $\normi{\bm{M}}<1$ can also guarantee the convergence to zero of sequence $\{\abs{\bm{z}^{(n+1)} - \bm{z}^{n}}\}$.
+  
 \end{proof}
 
 \section{$\alpha$-BP with Local $\alpha$}
-In previous sections, we have been discussing the $\alpha$-BP with a global $\alpha$ value for each factor in MRF. In this section, we would consider the case that each factor of MRF has its own local $\alpha$. To be specific, when we do refinement of each factor $\phi_{st}(x_s, x_t)$ of \eqref{eq:mrf} in Section~\ref{sec:alpha-bp-factor-refine}, we use a factor-specific $\alpha_{st}$
-for the problem in \eqref{eq:alpha-minimize-factor}. We consider the case that $\alpha_{st} = \alpha_{ts}$ and $\alpha_{ts} \neq \alpha_{uv}$ for $u \neq t$ or $v \neq s$. Then following the similar steps in Subsection~\ref{sec:alpha-bp-a}, we have
-\begin{equation}\label{eq:message-rule-local}
-  {m}^{\text{new}}_{ts}(x_s) \propto  m_{ts}(x_s)^{1-\alpha_{ts}} \bigg[
-  \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha_{ts}} {m}_{st}(x_t)^{1-\alpha_{ts}} {\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg].
+In previous sections, we have been discussing the $\alpha$-BP with a local $\alpha$ value for each factor in MRF. In this section, we would consider the case that MRF has its global $\alpha$. To be specific, when we do refinement of each factor $\phi_{st}(x_s, x_t)$ of \eqref{eq:mrf} in Section~\ref{sec:alpha-bp-factor-refine}, we use the same $\alpha$
+for the problem in \eqref{eq:alpha-minimize-factor}. 
+\begin{equation}\label{eq:message-rule-global}
+  {m}^{\text{new}}_{ts}(x_s) \propto  m_{ts}(x_s)^{1-\alpha} \bigg[
+  \sum_{x_t} \phi_{ts}(x_t, x_s)^{\alpha} {m}_{st}(x_t)^{1-\alpha} {\phi}_t(x_t) \prod_{w\in \Nn(t)\backslash s}m_{wt}(x_t) \bigg].
 \end{equation}
 
 There is a corresponding matrix
-Define a sized $2\abs{\Ee} \times 2\abs{\Ee}$ matrix $\bm{M}^{\dagger}(\alpha, \bm{\theta})$ with its entries index by edges $(t\rightarrow s)$, and of form
+Define a sized $2\abs{\Ee} \times 2\abs{\Ee}$ matrix $\bm{M}^{\dagger}(\bm{\alpha}, \bm{\theta})$ with its entries index by edges $(t\rightarrow s)$, and of form
 \begin{equation}
   M^{\dagger}_{(t\rightarrow s), (u \rightarrow v)} =
   \begin{cases}
-    \abs{ 1 - \alpha_{ts}}, &\quad u=t, v=s, \\
-    \abs{ 1 - \alpha_{ts}} \abs{G(0, 2 \alpha_{ts} \theta_{ts})}, & \quad u = s, v =t, \\
-    \abs{G(0, 2 \alpha_{ts} \theta_{ts})}, & \quad u \in \Nn(t)\backslash s, v = t, \\
+    \abs{ 1 - \alpha}, &\quad u=t, v=s, \\
+    \abs{ 1 - \alpha} \tanh\abs{ \alpha \theta_{ts}}, & \quad u = s, v =t, \\
+    \tanh\abs{\alpha \theta}, & \quad u \in \Nn(t)\backslash s, v = t, \\
     0, & \quad \mathrm{otherwise},
   \end{cases}
 \end{equation}
 
 
-\begin{cor}\label{cor:local-alpha-bp}
+\begin{cor}\label{cor:global-alpha-bp}
   For an arbitrary pairwise Markov random field over binary variables,
-  it the largest singular value of matrix $\bm{M}^{\dagger}(\alpha, \bm{\theta})$ is less than one,
+  it the largest singular value of matrix $\bm{M}^{\dagger}(\bm{\alpha}, \bm{\theta})$ is less than one,
   then $\alpha$-BP converges to a fixed point. The associated fixed
   point is unique.
 \end{cor}
 
+Similar we also have the alternative sufficient condition for $\alpha$-BP with global $\alpha$ for message passing by \eqref{eq:message-rule-global}.
+
+\begin{cor}
+  $\alpha$-BP with global $\alpha$ would converge if any of the following conditions is fulfilled:
+  \begin{equation}
+    \umax{u \rightarrow v}\abs{1-\alpha} + \abs{1-\alpha}\tanh{\abs{\alpha \theta_{vu}}} + \sum_{w \Nn(v) \backslash u} \tanh{\abs{\alpha \theta_{vw}}} < 1,
+  \end{equation}
+  or
+  \begin{equation}
+    \umax{t \rightarrow s} \abs{1-\alpha} (1 + \tanh\abs{\alpha \theta_{ts}}) + (\abs{\Nn(t)}-1)\tanh\abs{\alpha \theta_{ts}} < 1.
+  \end{equation}
 
 
 
