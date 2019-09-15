@@ -1,5 +1,9 @@
 # Alpha Belief Propagation
 
+## Theory Part
+For development, please read [analysis for alpha BP](./manuscript/README.md).
+For theoretical analysis, please read [manuscript](./manuscript/main.pdf).
+
 ## Environment
 Create a virtual environment with a python2 interpreter at 'path/to/your/evn/'
 ```bash
