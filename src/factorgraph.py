@@ -410,6 +410,26 @@ class Graph(object):
 
         return cur_iter, converged
 
+    def lbp_iteration(self, normalize=False, max_iters=LBP_MAX_ITERS,
+            progress=False):
+        '''
+        One iteration of Loopy belief propagation.
+
+        '''
+        cur_iter, converged = 0, False
+        nodes = self._sorted_nodes()
+        # Comptue outgoing messages:
+        converged = True
+        for n in nodes:
+            n_converged = n.recompute_outgoing(normalize=normalize)
+            converged = converged and n_converged
+
+        # Bookkeeping
+        cur_iter += 1
+        
+        return cur_iter, converged
+
+
     def _sorted_nodes(self):
         '''
         Returns
@@ -447,6 +467,18 @@ class Graph(object):
         print 'Current outgoing messages:'
         for n in nodes:
             n.print_messages()
+
+    def get_messages(self, nodes=None):
+        '''
+        Get outgoing messages for node/factor in nodes/factors.
+        Args:
+        nodes([RV|Factor])
+        '''
+        if nodes is None:
+            nodes = self._sorted_nodes()
+            
+        sorted_messages = [n.get_outgoing() for n in nodes]
+        return sorted_messages
 
     def rv_marginals(self, rvs=None, normalize=False):
         '''

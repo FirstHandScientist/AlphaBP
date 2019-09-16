@@ -105,7 +105,19 @@ class LoopyBP(object):
 
         # run BP
         iters, converged = self.graph.lbp(normalize=True,max_iters=stop_iter)
+
         
+    def lbp_iteration(self, check_skip=5, stop_iter=50):
+        '''
+        do iterations by the given number of check_skip
+        then return the messages in the graph
+        '''
+        for i in range(check_skip):
+            self.graph.lbp_iteration(normalize=True, max_iters=stop_iter)
+        all_sorted_messages = self.graph.get_messages()
+        
+        return all_sorted_messages
+
         
     def detect_signal_by_mean(self):
         estimated_signal = []

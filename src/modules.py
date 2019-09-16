@@ -147,8 +147,6 @@ class EP(object):
         idx_max = np.argmax( p_list )
         return proposals[idx_max]
 
-
-
 class LoopyBP(object):
 
     def __init__(self, noise_var, hparam):
@@ -172,7 +170,6 @@ class LoopyBP(object):
             self.graph.factor(["x{}".format(var_idx)],
                               potential=f_x_i)
 
-
         for var_idx in range(h_matrix.shape[1]):
 
             for var_jdx in range(var_idx + 1, h_matrix.shape[1]):
@@ -192,7 +189,6 @@ class LoopyBP(object):
 
         # run BP
         iters, converged = self.graph.lbp(normalize=True)
-        
         
     def detect_signal_by_mean(self):
         estimated_signal = []
@@ -215,6 +211,7 @@ class AlphaBP(LoopyBP):
         # add the discrete random variables to graph
         for idx in range(hparam.num_tx * 2):
             self.graph.rv("x{}".format(idx), len(self.constellation))
+
 
 
 class StochasticBP(AlphaBP):

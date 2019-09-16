@@ -12,6 +12,8 @@ from joblib import Parallel, delayed
 from scipy.stats import multivariate_normal
 import sys
 
+
+# import the methods and sources
 sys.path.append("./src")
 from loopy_modules import LoopyBP, AlphaBP, ML
 from utils import channel_component, sampling_noise, sampling_signal, sampling_H,real2complex, ERsampling_S
@@ -20,17 +22,16 @@ from utils import channel_component, sampling_noise, sampling_signal, sampling_H
 
 # configuration
 class hparam(object):
-    num_tx = 16
-    num_rx = 16
+    num_tx = 8
+    num_rx = 8
     soucrce_prior = [0.5, 0.5]
     signal_var = 1
     stn_var= 1
     connect_prob = np.linspace(0.0, 0.9, 10)
-    monte = 20
+    monte = 1
     power_n = 4./3
     constellation = [int(-1), int(1)]
 
-    EC_beta = 0.2
     alpha = None
     algos = {"LoopyBP": {"detector": LoopyBP, "alpha": None},
              "AlphaBP, 0.2": {"detector": AlphaBP, "alpha": 0.2},
@@ -40,13 +41,52 @@ class hparam(object):
              "AlphaBP, 1.2": {"detector": AlphaBP, "alpha": 1.2}
              
     }
-    iter_num = 50
-
+    # total number of iterations
+    iter_num = 100
+    # the number of iterations before each each checkpoint
+    check_skip = 5
     
     for _, value in algos.items():
         value["ser"] = []
 
-def task(erp):
+def list_message_to_norm(messages):
+    '''compute the norm2 of a given list of list of messages'''
+    tmp_sum = 0
+    for nodes in messages:
+        for n in nodes:
+            tmp_sum += np.power(n, 2).sum()
+    
+    return np.power(tmp_sum, 0.5)
+
+def list_message_diff(messages1, messages2):
+    '''
+    return the difference between two list of messages
+    '''
+    messages_diff = [ [n - messages2[i][j] for j, n in enumerate(nodes)] for i, nodes in enumerate(messages1)]
+    return messages_diff
+
+def messages_to_norm_ratio(sorted_messages):
+    '''
+    input: a collection of checkpoints of messages 
+    output: the log ratio of norm2 compared to the last message set
+    '''
+    conveged_messages = sorted_messages[-1]
+    
+    log_ratio = []
+    for messages_step_n in sorted_messages:
+        mssg_diff = list_message_diff(messages_step_n, conveged_messages)
+        log_ratio.append(np.log( list_message_to_norm(mssg_diff)/
+                                 list_message_to_norm(conveged_messages)))
+    return np.array(log_ratio)
+
+
+    
+
+if __name__ == "__main__":
+    usage = "python bin/converge_rate.py"
+
+    erp = 0.4
+
     tmp = dict()
     for name,_ in hparam.algos.items():
         tmp[name] = []
@@ -62,59 +102,31 @@ def task(erp):
         for key, method in hparam.algos.items():
             hparam.alpha = method['alpha']
             detector = method['detector'](None, hparam)
-            detector.fit(S=S,
-                         b=b,
-                         stop_iter=hparam.iter_num)
+            # set the potential 
+            detector.set_potential(S=S, b=b)
+            # initialize the messages
+            nodes = detector.graph._sorted_nodes()
+            detector.graph.init_messages(nodes)
 
-            estimated_symbol = detector.detect_signal_by_mean()
+            # do belief propagation: collect belief states every check_skip iterations
+            messages_vs_iter = [ detector.lbp_iteration(check_skip=hparam.check_skip,
+                                                        stop_iter=hparam.iter_num)
+                                 for _ in range(int(hparam.iter_num / hparam.check_skip))]
+            print(messages_to_norm_ratio(messages_vs_iter))
 
-            error = np.sum(np.array(solution) != np.array(estimated_symbol))
-            tmp[key].append(error)
 
     # performance should be made by comparing with ML
     performance = {"erp": erp}
     for key, method in hparam.algos.items():
         #method["ser"].append( np.mean(tmp[key])/hparam.num_tx )
-        performance[key] =  np.mean(tmp[key])/hparam.num_tx 
-    return performance
-
-results = []
-def collect_result(result):
-    global results
-    results.append(result)
-
-if __name__ == "__main__":
-    usage = "python bin/varying_sparsity.py"
-
-    pool = mp.Pool(mp.cpu_count())
-
-    results = pool.map(task, list(hparam.connect_prob))
-    pool.close()
-
-    performance = defaultdict(list)
-
-    #for the_result in RESULTS:
-    for connect_prob in list(hparam.connect_prob):
-        for the_result in results:
-            if the_result["erp"] == connect_prob:
-                for key, _ in hparam.algos.items():                
-                    performance[key].append( the_result[key] )
-
-    # for snr in hparam.snr and plot the results
-    marker_list = ["o", "<", "+", ">", "v", "1", "2", "3", "8"]
-    iter_marker_list = iter(marker_list)
-    fig, ax = plt.subplots()
-    for key, method in hparam.algos.items():
-        ax.plot(hparam.connect_prob, performance[key],
-                label = key,
-                marker=next(iter_marker_list))
+        performance[key] = np.mean(tmp[key])/hparam.num_tx 
 
 
-    ax.legend()
-    ax.set(xlabel="ERP", ylabel="SER")
-    ax.grid()
-    fig.savefig("figures/erp_experiment.pdf")
-    plt.show()
+    # 1. done one step of lbp of the graph
+    # 2. call graph.print_messages to get messages in graphs
+    # 3. parsing the messages into vector z 
 
+    # 4. record one step of z 
+    # 5. used converged z to get the rate convergence curve
 
 
