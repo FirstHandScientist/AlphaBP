@@ -12,10 +12,12 @@ from collections import defaultdict
 
 from joblib import Parallel, delayed
 from scipy.stats import multivariate_normal
+
+
+# importing from src
 import sys
 sys.path.append("./src")
-
-from modules import GaussianDiag, EP, MMSE, PowerEP, StochasticEP, ExpansionEP, ExpansionPowerEP, ExpectationConsistency, LoopyBP, LoopyMP, PPBP, AlphaBP, MMSEalphaBP, ML, VariationalBP, MMSEvarBP, EPalphaBP
+from modules import MMSE, AlphaBP, MMSEalphaBP, ML, LoopyBP
 from utils import channel_component, sampling_noise, sampling_signal, sampling_H,real2complex
 
 
@@ -29,30 +31,12 @@ class hparam(object):
     soucrce_prior = [0.5, 0.5]
     signal_var = 1
     snr = np.linspace(1, 40, 10)
-    monte = 5000
+    monte = 10
     power_n = 4./3
     constellation = [int(-1), int(1)]
 
     EC_beta = 0.2
     alpha = None
-    #algos_list = ["MMSE", "EP", "PowerEP"]
-    # algos = {"MMSE": {"detector": MMSE},
-    #          "EP": {"detector": EP},
-    #          "ExpansionEP": {"detector": ExpansionEP},
-    #          "ExpansionPowerEP": {"detector": ExpansionPowerEP}
-    # algos = {"MMSE": {"detector": MMSE},
-    #          "ML": {"detector": ML},
-    #          "LoopyBP": {"detector": LoopyBP},
-    #          "EP": {"detector": EP},
-             
-    #          # "LoopyMP": {"detector": LoopyMP},
-    #          # "VariationalBP": {"detector": VariationalBP},
-    #          # "MMSEvarBP": {"detector": MMSEvarBP},
-    #          "AlphaBP": {"detector": AlphaBP},
-    #          "MMSEalphaBP": {"detector": MMSEalphaBP},
-    #          "EPalphaBP": {"detector": EPalphaBP},
-    #          "PPBP": {"detector": PPBP}
-    # }
     ############## observer effect of Alpha for linear system  ########
     algos = {"MMSE": {"detector": MMSE, "legend": "MMSE"},
              "ML": {"detector": ML, "legend": "MAP"},
@@ -71,7 +55,6 @@ class hparam(object):
     #          "MMSEalphaBP, 0.4": {"detector": MMSEalphaBP, "alpha": 0.4, "legend":r'$\alpha$-BP+MMSE, 0.4'},
     #          "MMSEalphaBP, 0.6": {"detector": MMSEalphaBP, "alpha": 0.6, "legend":r'$\alpha$-BP+MMSE, 0.6'},
     #          "MMSEalphaBP, 0.8": {"detector": MMSEalphaBP, "alpha": 0.8, "legend":r'$\alpha$-BP+MMSE, 0.8'},
-
     # }
     
     iter_num = {"EP": 10,
