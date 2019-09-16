@@ -28,26 +28,25 @@ class hparam(object):
     signal_var = 1
     stn_var= 1
     connect_prob = np.linspace(0.0, 0.9, 10)
-    monte = 1
+    monte = 20
     power_n = 4./3
     constellation = [int(-1), int(1)]
 
     alpha = None
-    algos = {"LoopyBP": {"detector": LoopyBP, "alpha": None},
-             "AlphaBP, 0.2": {"detector": AlphaBP, "alpha": 0.2},
-             "AlphaBP, 0.4": {"detector": AlphaBP, "alpha": 0.4},
-             "AlphaBP, 0.6": {"detector": AlphaBP, "alpha": 0.6},
-             "AlphaBP, 0.8": {"detector": AlphaBP, "alpha": 0.8},
-             "AlphaBP, 1.2": {"detector": AlphaBP, "alpha": 1.2}
-             
+    # algos = {"AlphaBP, 0.5": {"detector": AlphaBP, "alpha": 0.5},
+    #          "AlphaBP, 1": {"detector": AlphaBP, "alpha": 1},
+    #          "AlphaBP, 1.2": {"detector": AlphaBP, "alpha": 1.2}
+    # }
+    algos = {"AlphaBP, 0.5": {"detector": AlphaBP, "alpha": 0.5, "legend": r'$\alpha=$,'+' {}'.format(0.5)}
     }
+    
     # total number of iterations
     iter_num = 100
     # the number of iterations before each each checkpoint
     check_skip = 5
     
     for _, value in algos.items():
-        value["ser"] = []
+        value["ratio"] = []
 
 def list_message_to_norm(messages):
     '''compute the norm2 of a given list of list of messages'''
@@ -65,19 +64,21 @@ def list_message_diff(messages1, messages2):
     messages_diff = [ [n - messages2[i][j] for j, n in enumerate(nodes)] for i, nodes in enumerate(messages1)]
     return messages_diff
 
-def messages_to_norm_ratio(sorted_messages):
+def messages_to_norm_ratio(sorted_messages, pop_last=True):
     '''
     input: a collection of checkpoints of messages 
     output: the log ratio of norm2 compared to the last message set
     '''
     conveged_messages = sorted_messages[-1]
     
-    log_ratio = []
+    mssg_ratio = []
     for messages_step_n in sorted_messages:
         mssg_diff = list_message_diff(messages_step_n, conveged_messages)
-        log_ratio.append(np.log( list_message_to_norm(mssg_diff)/
-                                 list_message_to_norm(conveged_messages)))
-    return np.array(log_ratio)
+        mssg_ratio.append( list_message_to_norm(mssg_diff)/
+                          list_message_to_norm(conveged_messages))
+    # last diff is 0, pop it out
+    mssg_ratio.pop()
+    return np.array(mssg_ratio)
 
 
     
@@ -96,8 +97,8 @@ if __name__ == "__main__":
         S, b = ERsampling_S(hparam, erp)
 
         # compute the joint ML detection
-        detectML = ML(hparam)
-        solution = detectML.detect(S, b)
+        # detectML = ML(hparam)
+        # solution = detectML.detect(S, b)
         
         for key, method in hparam.algos.items():
             hparam.alpha = method['alpha']
@@ -112,16 +113,27 @@ if __name__ == "__main__":
             messages_vs_iter = [ detector.lbp_iteration(check_skip=hparam.check_skip,
                                                         stop_iter=hparam.iter_num)
                                  for _ in range(int(hparam.iter_num / hparam.check_skip))]
-            print(messages_to_norm_ratio(messages_vs_iter))
+            method["ratio"].append(messages_to_norm_ratio(messages_vs_iter))
+            
 
-
-    # performance should be made by comparing with ML
-    performance = {"erp": erp}
+    # plot the results
+    marker_list = ["o", "<", "+", ">", "v", "1", "2", "3", "8", "*", "h", "d", "D"]
+    iter_marker_list = iter(marker_list)
+    fig, ax = plt.subplots()
     for key, method in hparam.algos.items():
-        #method["ser"].append( np.mean(tmp[key])/hparam.num_tx )
-        performance[key] = np.mean(tmp[key])/hparam.num_tx 
-
-
+        # plot the average convergence first
+        ax.semilogy(range(0, hparam.iter_num - hparam.check_skip, hparam.check_skip),
+                    np.array(method["ratio"]).mean(axis=0),
+                    marker=next(iter_marker_list),
+                    label=method['legend'])
+        ax.fill_between(range(0, hparam.iter_num - hparam.check_skip, hparam.check_skip),
+                        np.array(method["ratio"]).min(axis=0),
+                        np.array(method["ratio"]).max(axis=0))
+    
+    ax.set(xlabel="Iteration", ylabel="log ratio")
+    # lgd = ax.legend(bbox_to_anchor=(1.64,1), borderaxespad=0)
+    ax.grid()
+    plt.show()
     # 1. done one step of lbp of the graph
     # 2. call graph.print_messages to get messages in graphs
     # 3. parsing the messages into vector z 
