@@ -29,5 +29,15 @@ For the sufficient condition check in ER random graph, run
 ``` bash
 $ python bin/contract_condition.py
 ```
+For message change along with iteration numbers, to see case of no convergence
+
+``` bash
+$ python bin/converge_rate 0.5 false
+```
+For message change along with iteration numbers, to see case with convergence
+
+``` bash
+$ python bin/converge_rate 0.1 true
+```
 
 

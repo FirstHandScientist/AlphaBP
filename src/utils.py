@@ -79,8 +79,8 @@ def largest_singular(S, alpha):
 def converge_cond_m(S, alpha):
     # does S contain potentials???
     # set the diagonal entry to zero since converge condition does not need it
-    largest_singular(S, alpha)
-    cnvg = True if singulars.max() < 1 else False
+    max_singular = largest_singular(S, alpha)
+    cnvg = True if max_singular < 1 else False
     return cnvg
 
 

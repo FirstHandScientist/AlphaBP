@@ -27,9 +27,9 @@ class hparam(object):
     num_rx = 16
     soucrce_prior = [0.5, 0.5]
     
-    stn_var= 0.1
+    stn_var= None
     connect_prob = np.linspace(0.0, 0.9, 10)
-    monte = 1
+    monte = 10
     
     constellation = [int(-1), int(1)]
 
@@ -38,7 +38,7 @@ class hparam(object):
     #          "AlphaBP, 1": {"detector": AlphaBP, "alpha": 1},
     #          "AlphaBP, 1.2": {"detector": AlphaBP, "alpha": 1.2}
     # }
-    algos = {"AlphaBP, 0.5": {"detector": AlphaBP, "alpha": 1, "legend": r'$\alpha=$,'+' {}'.format(0.5)}
+    algos = {"AlphaBP, 0.5": {"detector": AlphaBP, "alpha": 0.5, "legend": r'$\alpha=$,'+' {}'.format(0.5)}
     }
     
     # total number of iterations
@@ -54,17 +54,19 @@ class hparam(object):
     
 
 if __name__ == "__main__":
-    usage = "python bin/converge_rate.py er_prob guarantee_cnvg"
+    usage = "python bin/converge_rate.py stn guarantee_cnvg"
     if len(sys.argv) !=3 or sys.argv[1] == "-h" or sys.argv[1] == "--help":
         print(usage)
         sys.exit(1)
 
-    erp = float(sys.argv[1])
+    stn = float(sys.argv[1])
+    erp = 0.4
     guarantee_cnvg = True if sys.argv[2] == 'true' else False
 
     for monte in range(hparam.monte):
         for key, method in hparam.algos.items():
             # sampling the S and b for exponential function
+            hparam.stn_var = stn
             S, b = ERsampling_S(hparam, erp)
             # regenerate graph if guarantee_cnvg is true that requires convergence
             if guarantee_cnvg:
@@ -104,8 +106,15 @@ if __name__ == "__main__":
                         alpha=0.5)
     
     ax.set(xlabel="Iteration", ylabel=r'$\log\; \frac{\Vert\mathbf{z}^{(n)} - \mathbf{z}^{\ast}\Vert}{\Vert \mathbf{z}^{\ast} \Vert}$')
-    # lgd = ax.legend(bbox_to_anchor=(1.64,1), borderaxespad=0)
+    # ax.legend()
     ax.grid()
+    plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+    fig.savefig("figures/converge_erp{}_alpha_{}_stn_{}_vs_filter_{}.pdf".format(
+        str(erp).replace(".","_"),
+        str(hparam.algos.itervalues().next()["alpha"]).replace(".","_"),
+        str(stn).replace(".","_"),
+        sys.argv[2]))
+    
     plt.show()
     # 1. done one step of lbp of the graph
     # 2. call graph.print_messages to get messages in graphs
