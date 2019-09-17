@@ -9,7 +9,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import itertools
 from collections import defaultdict
-
+import pickle
 from joblib import Parallel, delayed
 from scipy.stats import multivariate_normal
 
@@ -156,6 +156,9 @@ for snr in list(hparam.snr):
     
 # for snr in hparam.snr:
 
+# save the experimental results    
+with open("figures/alpha_compare.pkl", 'wb') as handle:
+    pickle.dump(performance, handle)
 
 marker_list = ["o", "<", "+", ">", "v", "1", "2", "3", "8", "*", "h", "d", "D"]
 iter_marker_list = iter(marker_list)
@@ -168,6 +171,7 @@ for key, method in hparam.algos.items():
     
 ax.legend(loc="best", fontsize='small', ncol=2)
 ax.set(xlabel="Ratio of Signal to Noise Variance", ylabel="SER")
+plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 ax.grid()
 fig.savefig("figures/alpha_compare.pdf")
 #plt.show()

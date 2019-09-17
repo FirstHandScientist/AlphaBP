@@ -28,7 +28,7 @@ def ERsampling_S(hparam, p):
                 S[i, j] = np.random.randn() * hparam.stn_var
                 S[j, i] = S[i, j]
         
-        # S[i, i] = np.abs(np.random.randn())
+        S[i, i] = np.abs(np.random.randn())
         # row_max = S[i].max()
         # if S[i, i]< row_max:
         #     S[i, i] = row_max
