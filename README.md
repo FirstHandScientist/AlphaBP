@@ -22,3 +22,12 @@ $ pip install -r requirements.txt
 
 ```
 
+## Experiments
+
+For the sufficient condition check in ER random graph, run
+
+``` bash
+$ python bin/contract_condition.py
+```
+
+

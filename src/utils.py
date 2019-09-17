@@ -51,10 +51,7 @@ def real2complex(x):
     return real + 1j * img
 
 ## convergence condition of theorem 1
-
-def converge_cond_m(S, alpha):
-    # does S contain potentials???
-    # set the diagonal entry to zero since converge condition does not need it
+def largest_singular(S, alpha):
     np.fill_diagonal(S, 0) 
     aj_matrix = 2 * S
     #create the graph by aj_matrix
@@ -77,8 +74,13 @@ def converge_cond_m(S, alpha):
                     m_matrix[i,j] = np.tanh( np.abs( alpha * aj_matrix[row] ))
     
     _, singulars, _ = np.linalg.svd(m_matrix)
-    cnvg = True if singulars.max() < 1 else False
+    return singulars.max()
 
+def converge_cond_m(S, alpha):
+    # does S contain potentials???
+    # set the diagonal entry to zero since converge condition does not need it
+    largest_singular(S, alpha)
+    cnvg = True if singulars.max() < 1 else False
     return cnvg
 
 
