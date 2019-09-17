@@ -34,6 +34,24 @@ def ERsampling_S(hparam, p):
         #     S[i, i] = row_max
     
     return (S, b)
+    
+def sampling_noise(hparam, snr):
+    # noise_var = hparam.num_tx/hparam.num_rx * np.power(10, -snr/10)
+    # noise_var = hparam.num_tx * np.power(10, -snr/10)
+    noise_var = 1. / snr
+    noise = np.sqrt( noise_var) * np.random.randn(hparam.num_rx * 2)
+    return (noise, noise_var)
+
+                        
+def real2complex(x):
+    x = np.array(x)
+    num = x.shape[0]
+    real = x[:int(num/2)]
+    img = x[int(num/2):num]
+    return real + 1j * img
+
+## convergence condition of theorem 1
+
 def converge_cond_m(S, alpha):
     # does S contain potentials???
     # set the diagonal entry to zero since converge condition does not need it
@@ -62,18 +80,40 @@ def converge_cond_m(S, alpha):
     cnvg = True if singulars.max() < 1 else False
 
     return cnvg
-    
-def sampling_noise(hparam, snr):
-    # noise_var = hparam.num_tx/hparam.num_rx * np.power(10, -snr/10)
-    # noise_var = hparam.num_tx * np.power(10, -snr/10)
-    noise_var = 1. / snr
-    noise = np.sqrt( noise_var) * np.random.randn(hparam.num_rx * 2)
-    return (noise, noise_var)
 
-                        
-def real2complex(x):
-    x = np.array(x)
-    num = x.shape[0]
-    real = x[:int(num/2)]
-    img = x[int(num/2):num]
-    return real + 1j * img
+
+
+### message operation functions
+
+def list_message_to_norm(messages):
+    '''compute the norm2 of a given list of list of messages'''
+    tmp_sum = 0
+    for nodes in messages:
+        for n in nodes:
+            tmp_sum += np.power(n, 2).sum()
+    
+    return np.power(tmp_sum, 0.5)
+
+def list_message_diff(messages1, messages2):
+    '''
+    return the difference between two list of messages
+    '''
+    messages_diff = [ [n - messages2[i][j] for j, n in enumerate(nodes)] for i, nodes in enumerate(messages1)]
+    return messages_diff
+
+def messages_to_norm_ratio(sorted_messages, pop_last=True):
+    '''
+    input: a collection of checkpoints of messages 
+    output: the log ratio of norm2 compared to the last message set
+    '''
+    conveged_messages = sorted_messages[-1]
+    
+    mssg_ratio = []
+    for messages_step_n in sorted_messages:
+        mssg_diff = list_message_diff(messages_step_n, conveged_messages)
+        mssg_ratio.append( list_message_to_norm(mssg_diff)/
+                          list_message_to_norm(conveged_messages))
+    # last diff is 0, pop it out
+    mssg_ratio.pop()
+    return np.array(mssg_ratio)
+

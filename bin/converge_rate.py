@@ -4,6 +4,7 @@ import numpy as np
 import multiprocessing as mp
 from multiprocessing import Pool
 import matplotlib
+matplotlib.rcParams.update({'font.size': 18})
 import matplotlib.pyplot as plt
 import itertools
 from collections import defaultdict
@@ -16,7 +17,7 @@ import sys
 # import the methods and sources
 sys.path.append("./src")
 from loopy_modules import LoopyBP, AlphaBP, ML
-from utils import channel_component, sampling_noise, sampling_signal, sampling_H,real2complex, ERsampling_S, converge_cond_m
+from utils import channel_component, sampling_noise, sampling_signal, sampling_H,real2complex, ERsampling_S, converge_cond_m, messages_to_norm_ratio
 
 
 
@@ -28,7 +29,7 @@ class hparam(object):
     
     stn_var= 0.1
     connect_prob = np.linspace(0.0, 0.9, 10)
-    monte = 10
+    monte = 1
     
     constellation = [int(-1), int(1)]
 
@@ -48,37 +49,6 @@ class hparam(object):
     for _, value in algos.items():
         value["ratio"] = []
 
-def list_message_to_norm(messages):
-    '''compute the norm2 of a given list of list of messages'''
-    tmp_sum = 0
-    for nodes in messages:
-        for n in nodes:
-            tmp_sum += np.power(n, 2).sum()
-    
-    return np.power(tmp_sum, 0.5)
-
-def list_message_diff(messages1, messages2):
-    '''
-    return the difference between two list of messages
-    '''
-    messages_diff = [ [n - messages2[i][j] for j, n in enumerate(nodes)] for i, nodes in enumerate(messages1)]
-    return messages_diff
-
-def messages_to_norm_ratio(sorted_messages, pop_last=True):
-    '''
-    input: a collection of checkpoints of messages 
-    output: the log ratio of norm2 compared to the last message set
-    '''
-    conveged_messages = sorted_messages[-1]
-    
-    mssg_ratio = []
-    for messages_step_n in sorted_messages:
-        mssg_diff = list_message_diff(messages_step_n, conveged_messages)
-        mssg_ratio.append( list_message_to_norm(mssg_diff)/
-                          list_message_to_norm(conveged_messages))
-    # last diff is 0, pop it out
-    mssg_ratio.pop()
-    return np.array(mssg_ratio)
 
 
     
@@ -133,7 +103,7 @@ if __name__ == "__main__":
                         np.array(method["ratio"]).max(axis=0),
                         alpha=0.5)
     
-    ax.set(xlabel="Iteration", ylabel="log ratio")
+    ax.set(xlabel="Iteration", ylabel=r'$\log\; \frac{\Vert\mathbf{z}^{(n)} - \mathbf{z}^{\ast}\Vert}{\Vert \mathbf{z}^{\ast} \Vert}$')
     # lgd = ax.legend(bbox_to_anchor=(1.64,1), borderaxespad=0)
     ax.grid()
     plt.show()
