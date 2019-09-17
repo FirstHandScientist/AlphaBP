@@ -1,5 +1,5 @@
 import numpy as np
-
+import igraph
 
 def channel_component(hparam):
     return 1/np.sqrt(2*hparam.num_rx)*np.random.randn(hparam.num_rx,hparam.num_tx)
@@ -28,14 +28,41 @@ def ERsampling_S(hparam, p):
                 S[i, j] = np.random.randn() * hparam.stn_var
                 S[j, i] = S[i, j]
         
-        S[i, i] = np.abs(np.random.randn())
-        row_max = S[i].max()
-        if S[i, i]< row_max:
-            S[i, i] = row_max
+        # S[i, i] = np.abs(np.random.randn())
+        # row_max = S[i].max()
+        # if S[i, i]< row_max:
+        #     S[i, i] = row_max
     
     return (S, b)
+def converge_cond_m(S, alpha):
+    # does S contain potentials???
+    # set the diagonal entry to zero since converge condition does not need it
+    np.fill_diagonal(S, 0) 
+    aj_matrix = 2 * S
+    #create the graph by aj_matrix
+    graph = igraph.Graph.Adjacency(aj_matrix.astype(bool).tolist())
+    # get all directed edges in graph
+    edges = graph.get_edgelist()
+    # construct the m_matrix for convergence check
+    m_matrix = np.zeros((len(edges), len(edges)))
+    for i, row in enumerate(edges):
+        for j, col in enumerate(edges):
+            if row == col:
+                m_matrix[i,j] = np.abs(1 - alpha)
+            elif row == col[::-1]:
+                m_matrix[i,j] = np.abs(1 - alpha) * np.tanh( np.abs( alpha * aj_matrix[row] ))
 
+            elif row[0] == col[1]:
+                if row[1] == col[0]:
+                    pass
+                else:
+                    m_matrix[i,j] = np.tanh( np.abs( alpha * aj_matrix[row] ))
+    
+    _, singulars, _ = np.linalg.svd(m_matrix)
+    cnvg = True if singulars.max() < 1 else False
 
+    return cnvg
+    
 def sampling_noise(hparam, snr):
     # noise_var = hparam.num_tx/hparam.num_rx * np.power(10, -snr/10)
     # noise_var = hparam.num_tx * np.power(10, -snr/10)

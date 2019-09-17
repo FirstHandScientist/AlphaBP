@@ -16,20 +16,20 @@ import sys
 # import the methods and sources
 sys.path.append("./src")
 from loopy_modules import LoopyBP, AlphaBP, ML
-from utils import channel_component, sampling_noise, sampling_signal, sampling_H,real2complex, ERsampling_S
+from utils import channel_component, sampling_noise, sampling_signal, sampling_H,real2complex, ERsampling_S, converge_cond_m
 
 
 
 # configuration
 class hparam(object):
-    num_tx = 8
-    num_rx = 8
+    num_tx = 16
+    num_rx = 16
     soucrce_prior = [0.5, 0.5]
-    signal_var = 1
-    stn_var= 1
+    
+    stn_var= 0.1
     connect_prob = np.linspace(0.0, 0.9, 10)
-    monte = 20
-    power_n = 4./3
+    monte = 10
+    
     constellation = [int(-1), int(1)]
 
     alpha = None
@@ -37,11 +37,11 @@ class hparam(object):
     #          "AlphaBP, 1": {"detector": AlphaBP, "alpha": 1},
     #          "AlphaBP, 1.2": {"detector": AlphaBP, "alpha": 1.2}
     # }
-    algos = {"AlphaBP, 0.5": {"detector": AlphaBP, "alpha": 0.5, "legend": r'$\alpha=$,'+' {}'.format(0.5)}
+    algos = {"AlphaBP, 0.5": {"detector": AlphaBP, "alpha": 1, "legend": r'$\alpha=$,'+' {}'.format(0.5)}
     }
     
     # total number of iterations
-    iter_num = 100
+    iter_num = 200
     # the number of iterations before each each checkpoint
     check_skip = 5
     
@@ -84,23 +84,25 @@ def messages_to_norm_ratio(sorted_messages, pop_last=True):
     
 
 if __name__ == "__main__":
-    usage = "python bin/converge_rate.py"
+    usage = "python bin/converge_rate.py er_prob guarantee_cnvg"
+    if len(sys.argv) !=3 or sys.argv[1] == "-h" or sys.argv[1] == "--help":
+        print(usage)
+        sys.exit(1)
 
-    erp = 0.4
+    erp = float(sys.argv[1])
+    guarantee_cnvg = True if sys.argv[2] == 'true' else False
 
-    tmp = dict()
-    for name,_ in hparam.algos.items():
-        tmp[name] = []
     for monte in range(hparam.monte):
-
-        # sampling the S and b for exponential function
-        S, b = ERsampling_S(hparam, erp)
-
-        # compute the joint ML detection
-        # detectML = ML(hparam)
-        # solution = detectML.detect(S, b)
-        
         for key, method in hparam.algos.items():
+            # sampling the S and b for exponential function
+            S, b = ERsampling_S(hparam, erp)
+            # regenerate graph if guarantee_cnvg is true that requires convergence
+            if guarantee_cnvg:
+                while not converge_cond_m(S, method["alpha"]):
+                    S, b = ERsampling_S(hparam, erp)
+
+            print("[Convergence: {} at {}]".format(converge_cond_m(S, method["alpha"]), monte))
+    
             hparam.alpha = method['alpha']
             detector = method['detector'](None, hparam)
             # set the potential 
@@ -128,7 +130,8 @@ if __name__ == "__main__":
                     label=method['legend'])
         ax.fill_between(range(0, hparam.iter_num - hparam.check_skip, hparam.check_skip),
                         np.array(method["ratio"]).min(axis=0),
-                        np.array(method["ratio"]).max(axis=0))
+                        np.array(method["ratio"]).max(axis=0),
+                        alpha=0.5)
     
     ax.set(xlabel="Iteration", ylabel="log ratio")
     # lgd = ax.legend(bbox_to_anchor=(1.64,1), borderaxespad=0)
