@@ -29,7 +29,7 @@ class hparam(object):
     
     stn_var= None
     connect_prob = np.linspace(0.0, 0.9, 10)
-    monte = 10
+    monte = 50
     
     constellation = [int(-1), int(1)]
 
@@ -38,7 +38,7 @@ class hparam(object):
     #          "AlphaBP, 1": {"detector": AlphaBP, "alpha": 1},
     #          "AlphaBP, 1.2": {"detector": AlphaBP, "alpha": 1.2}
     # }
-    algos = {"AlphaBP, 0.5": {"detector": AlphaBP, "alpha": 1, "legend": r'$\alpha=$,'+' {}'.format(0.5)}
+    algos = {"AlphaBP, 0.5": {"detector": AlphaBP, "alpha": 0.5, "legend": r'$\alpha=$,'+' {}'.format(0.5)}
     }
     
     # total number of iterations
