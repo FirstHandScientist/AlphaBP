@@ -38,7 +38,7 @@ class hparam(object):
     #          "AlphaBP, 1": {"detector": AlphaBP, "alpha": 1},
     #          "AlphaBP, 1.2": {"detector": AlphaBP, "alpha": 1.2}
     # }
-    algos = {"AlphaBP, 0.5": {"detector": AlphaBP, "alpha": 0.5, "legend": r'$\alpha=$,'+' {}'.format(0.5)}
+    algos = {"AlphaBP, 0.5": {"detector": AlphaBP, "alpha": 1, "legend": r'$\alpha=$,'+' {}'.format(0.5)}
     }
     
     # total number of iterations
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     fig, ax = plt.subplots()
     for key, method in hparam.algos.items():
         # plot the average convergence first
-        ax.semilogy(range(0, hparam.iter_num - hparam.check_skip, hparam.check_skip),
+        ax.plot(range(0, hparam.iter_num - hparam.check_skip, hparam.check_skip),
                     np.array(method["ratio"]).mean(axis=0),
                     marker=next(iter_marker_list),
                     label=method['legend'])
@@ -105,9 +105,10 @@ if __name__ == "__main__":
                         np.array(method["ratio"]).max(axis=0),
                         alpha=0.5)
     
-    ax.set(xlabel="Iteration", ylabel=r'$\log\; \frac{\Vert\mathbf{m}^{(n)} - \mathbf{m}^{\ast}\Vert_2}{\Vert \mathbf{m}^{\ast} \Vert_2}$')
+    ax.set(xlabel="Iteration", ylabel=r'$\frac{\Vert\mathbf{m}^{(n)} - \mathbf{m}^{\ast}\Vert_2}{\Vert \mathbf{m}^{\ast} \Vert_2}$')
     # ax.legend()
     ax.grid()
+    ax.set_yscale("log")
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
     fig.savefig("figures/converge_erp{}_alpha_{}_stn_{}_vs_filter_{}.pdf".format(
         str(erp).replace(".","_"),
