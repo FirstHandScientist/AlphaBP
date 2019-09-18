@@ -105,7 +105,7 @@ if __name__ == "__main__":
                         np.array(method["ratio"]).max(axis=0),
                         alpha=0.5)
     
-    ax.set(xlabel="Iteration", ylabel=r'$\log\; \frac{\Vert\mathbf{z}^{(n)} - \mathbf{z}^{\ast}\Vert}{\Vert \mathbf{z}^{\ast} \Vert}$')
+    ax.set(xlabel="Iteration", ylabel=r'$\log\; \frac{\Vert\mathbf{m}^{(n)} - \mathbf{m}^{\ast}\Vert_2}{\Vert \mathbf{m}^{\ast} \Vert_2}$')
     # ax.legend()
     ax.grid()
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
