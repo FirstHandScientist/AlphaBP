@@ -12,10 +12,11 @@ from collections import defaultdict
 
 from joblib import Parallel, delayed
 from scipy.stats import multivariate_normal
+import pickle
+# importing from src
 import sys
 sys.path.append("./src")
-
-from modules import GaussianDiag, EP, MMSE, PowerEP, StochasticEP, ExpansionEP, ExpansionPowerEP, ExpectationConsistency, LoopyBP, LoopyMP, PPBP, AlphaBP, MMSEalphaBP, ML, VariationalBP, MMSEvarBP, EPalphaBP
+from modules import MMSE, AlphaBP, MMSEalphaBP, ML, LoopyBP
 from utils import channel_component, sampling_noise, sampling_signal, sampling_H,real2complex
 
 
@@ -29,7 +30,7 @@ class hparam(object):
     soucrce_prior = [0.5, 0.5]
     signal_var = 1
     snr = np.linspace(1, 40, 10)
-    monte = 5000
+    monte = 3000
     power_n = 4./3
     constellation = [int(-1), int(1)]
 
@@ -168,8 +169,9 @@ for snr in list(hparam.snr):
             for key, _ in hparam.algos.items():                
                 performance[key].append( the_result[key] )
 
-    
-    
+# save the experimental results    
+with open("figures/prior_mmse_alpha_compare.pkl", 'wb') as handle:
+    pickle.dump(performance, handle)
     
 # for snr in hparam.snr:
 

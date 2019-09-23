@@ -31,7 +31,7 @@ class hparam(object):
     soucrce_prior = [0.5, 0.5]
     signal_var = 1
     snr = np.linspace(1, 40, 10)
-    monte = 10
+    monte = 2000
     power_n = 4./3
     constellation = [int(-1), int(1)]
 
