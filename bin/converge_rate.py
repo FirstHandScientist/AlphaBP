@@ -29,7 +29,7 @@ class hparam(object):
     
     stn_var= None
     connect_prob = np.linspace(0.0, 0.9, 10)
-    monte = 50
+    monte = 100
     
     constellation = [int(-1), int(1)]
 
