@@ -45,4 +45,19 @@ For message change along with iteration numbers, to see case with convergence
 $ python bin/converge_rate 0.1 true
 ```
 
+For application of alpha-bp, run
+
+``` bash
+$ python bin/alpha_compare.py
+```
+for experiments without prior.
+
+For application with mmse prior, run
+
+``` bash
+$ python bin/alpha_compare_mmse.py
+```
+
+
+
 
