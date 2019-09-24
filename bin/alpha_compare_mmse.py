@@ -30,7 +30,7 @@ class hparam(object):
     soucrce_prior = [0.5, 0.5]
     signal_var = 1
     snr = np.linspace(1, 40, 10)
-    monte = 3000
+    monte = 5000
     power_n = 4./3
     constellation = [int(-1), int(1)]
 
@@ -68,10 +68,10 @@ class hparam(object):
     algos = {"MMSE": {"detector": MMSE, "legend": "MMSE"},
              "ML": {"detector": ML, "legend": "MAP"},
              "LoopyBP": {"detector": LoopyBP, "legend": "BP"},
-             "MMSEalphaBP, 0.2": {"detector": MMSEalphaBP, "alpha": 0.2, "legend":r'$\alpha$-BP+MMSE, 0.2'},
-             "MMSEalphaBP, 0.4": {"detector": MMSEalphaBP, "alpha": 0.4, "legend":r'$\alpha$-BP+MMSE, 0.4'},
-             "MMSEalphaBP, 0.6": {"detector": MMSEalphaBP, "alpha": 0.6, "legend":r'$\alpha$-BP+MMSE, 0.6'},
-             "MMSEalphaBP, 0.8": {"detector": MMSEalphaBP, "alpha": 0.8, "legend":r'$\alpha$-BP+MMSE, 0.8'},
+             "MMSEalphaBP, 0.3": {"detector": MMSEalphaBP, "alpha": 0.3, "legend":r'$\alpha$-BP+MMSE, 0.3'},
+             "MMSEalphaBP, 0.5": {"detector": MMSEalphaBP, "alpha": 0.5, "legend":r'$\alpha$-BP+MMSE, 0.5'},
+             "MMSEalphaBP, 0.7": {"detector": MMSEalphaBP, "alpha": 0.7, "legend":r'$\alpha$-BP+MMSE, 0.7'},
+             "MMSEalphaBP, 0.9": {"detector": MMSEalphaBP, "alpha": 0.9, "legend":r'$\alpha$-BP+MMSE, 0.9'},
 
     }
     
@@ -186,7 +186,7 @@ for key, method in hparam.algos.items():
                 marker=next(iter_marker_list))
     
 ax.legend(loc="best", fontsize='small', ncol=2)
-ax.set(xlabel="Ratio of Signal to Noise Variance", ylabel="SER")
+ax.set(xlabel="Ratio of Signal to Noise Variance", ylabel="Symbol Error")
 ax.grid()
 fig.savefig("figures/prior_mmse_alpha_compare.pdf")
 #plt.show()
