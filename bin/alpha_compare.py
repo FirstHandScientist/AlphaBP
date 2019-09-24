@@ -31,7 +31,7 @@ class hparam(object):
     soucrce_prior = [0.5, 0.5]
     signal_var = 1
     snr = np.linspace(1, 40, 10)
-    monte = 10
+    monte = 5000
     power_n = 4./3
     constellation = [int(-1), int(1)]
 
@@ -41,10 +41,10 @@ class hparam(object):
     algos = {"MMSE": {"detector": MMSE, "legend": "MMSE"},
              "ML": {"detector": ML, "legend": "MAP"},
              "LoopyBP": {"detector": LoopyBP, "legend": "BP"},
-             "AlphaBP, 0.2": {"detector": AlphaBP, "alpha": 0.2, "legend":r'$\alpha$-BP, 0.2'},
-             "AlphaBP, 0.4": {"detector": AlphaBP, "alpha": 0.4, "legend":r'$\alpha$-BP, 0.4'},
-             "AlphaBP, 0.8": {"detector": AlphaBP, "alpha": 0.6, "legend":r'$\alpha$-BP, 0.6'},
-             "AlphaBP, 1.2": {"detector": AlphaBP, "alpha": 0.8, "legend":r'$\alpha$-BP, 0.8'}
+             "AlphaBP, 0.3": {"detector": AlphaBP, "alpha": 0.3, "legend":r'$\alpha$-BP, 0.3'},
+             "AlphaBP, 0.5": {"detector": AlphaBP, "alpha": 0.5, "legend":r'$\alpha$-BP, 0.5'},
+             "AlphaBP, 0.7": {"detector": AlphaBP, "alpha": 0.7, "legend":r'$\alpha$-BP, 0.7'},
+             "AlphaBP, 0.9": {"detector": AlphaBP, "alpha": 0.9, "legend":r'$\alpha$-BP, 0.9'}
     }
     ########### import test with pysudo prior ################
     
@@ -170,7 +170,7 @@ for key, method in hparam.algos.items():
                 marker=next(iter_marker_list))
     
 ax.legend(loc="best", fontsize='small', ncol=2)
-ax.set(xlabel="Ratio of Signal to Noise Variance", ylabel="SER")
+ax.set(xlabel="Ratio of Signal to Noise Variance", ylabel="Symbol Error")
 plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 ax.grid()
 fig.savefig("figures/alpha_compare.pdf")

@@ -12,10 +12,11 @@ from collections import defaultdict
 
 from joblib import Parallel, delayed
 from scipy.stats import multivariate_normal
+import pickle
+# importing from src
 import sys
 sys.path.append("./src")
-
-from modules import GaussianDiag, EP, MMSE, PowerEP, StochasticEP, ExpansionEP, ExpansionPowerEP, ExpectationConsistency, LoopyBP, LoopyMP, PPBP, AlphaBP, MMSEalphaBP, ML, VariationalBP, MMSEvarBP, EPalphaBP
+from modules import MMSE, AlphaBP, MMSEalphaBP, ML, LoopyBP
 from utils import channel_component, sampling_noise, sampling_signal, sampling_H,real2complex
 
 
@@ -67,10 +68,10 @@ class hparam(object):
     algos = {"MMSE": {"detector": MMSE, "legend": "MMSE"},
              "ML": {"detector": ML, "legend": "MAP"},
              "LoopyBP": {"detector": LoopyBP, "legend": "BP"},
-             "MMSEalphaBP, 0.2": {"detector": MMSEalphaBP, "alpha": 0.2, "legend":r'$\alpha$-BP+MMSE, 0.2'},
-             "MMSEalphaBP, 0.4": {"detector": MMSEalphaBP, "alpha": 0.4, "legend":r'$\alpha$-BP+MMSE, 0.4'},
-             "MMSEalphaBP, 0.6": {"detector": MMSEalphaBP, "alpha": 0.6, "legend":r'$\alpha$-BP+MMSE, 0.6'},
-             "MMSEalphaBP, 0.8": {"detector": MMSEalphaBP, "alpha": 0.8, "legend":r'$\alpha$-BP+MMSE, 0.8'},
+             "MMSEalphaBP, 0.3": {"detector": MMSEalphaBP, "alpha": 0.3, "legend":r'$\alpha$-BP+MMSE, 0.3'},
+             "MMSEalphaBP, 0.5": {"detector": MMSEalphaBP, "alpha": 0.5, "legend":r'$\alpha$-BP+MMSE, 0.5'},
+             "MMSEalphaBP, 0.7": {"detector": MMSEalphaBP, "alpha": 0.7, "legend":r'$\alpha$-BP+MMSE, 0.7'},
+             "MMSEalphaBP, 0.9": {"detector": MMSEalphaBP, "alpha": 0.9, "legend":r'$\alpha$-BP+MMSE, 0.9'},
 
     }
     
@@ -168,8 +169,9 @@ for snr in list(hparam.snr):
             for key, _ in hparam.algos.items():                
                 performance[key].append( the_result[key] )
 
-    
-    
+# save the experimental results    
+with open("figures/prior_mmse_alpha_compare.pkl", 'wb') as handle:
+    pickle.dump(performance, handle)
     
 # for snr in hparam.snr:
 
@@ -184,7 +186,7 @@ for key, method in hparam.algos.items():
                 marker=next(iter_marker_list))
     
 ax.legend(loc="best", fontsize='small', ncol=2)
-ax.set(xlabel="Ratio of Signal to Noise Variance", ylabel="SER")
+ax.set(xlabel="Ratio of Signal to Noise Variance", ylabel="Symbol Error")
 ax.grid()
 fig.savefig("figures/prior_mmse_alpha_compare.pdf")
 #plt.show()
