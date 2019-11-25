@@ -119,3 +119,16 @@ def messages_to_norm_ratio(sorted_messages, pop_last=True):
     mssg_ratio.pop()
     return np.array(mssg_ratio)
 
+def step_rate_decay(init_lr, global_step, end,
+                    anneal_rate=0.98,
+                    anneal_interval=1):
+    rate = init_lr * anneal_rate ** (global_step // anneal_interval)
+    if init_lr > end:
+        # for decaying rate
+        if rate < end:
+            rate = end
+    else:
+        # for raising rate
+        if rate > end:
+            rate = end
+    return rate
