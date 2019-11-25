@@ -213,6 +213,34 @@ class AlphaBP(LoopyBP):
             self.graph.rv("x{}".format(idx), len(self.constellation))
 
 
+class AnnealAlphaBP(AlphaBP):
+    """Annealing alpha value in iterations of alphaBP"""
+    def __init__(self, noise_var, hparam):
+        self.hparam = hparam
+        # get the constellation
+        self.constellation = hparam.constellation
+
+        self.n_symbol = hparam.num_tx * 2
+        # set the graph
+        self.graph = alphaBP.alphaGraph(alpha=hparam.alpha,
+                                        anneal_scheduler=hparam.alpha_schedule)
+
+        # add the discrete random variables to graph
+        for idx in range(hparam.num_tx * 2):
+            self.graph.rv("x{}".format(idx), len(self.constellation))
+
+
+
+
+    def fit(self, channel, noise_var, noised_signal, stop_iter=10):
+        """ set potentials and run message passing"""
+        self.set_potential(h_matrix=channel,
+                           observation=noised_signal,
+                           noise_var=noise_var)
+
+        # run BP with anneal as true
+        iters, converged = self.graph.lbp(normalize=True, anneal=True)
+    
 
 class StochasticBP(AlphaBP):
     def __init__(self, noise_var, hparam):
