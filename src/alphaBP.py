@@ -31,7 +31,7 @@ E_STOP = False
 ##### classes
 
 class alphaGraph(Graph):
-    def __init__(self, alpha=1, debug=DEBUG_DEFAULT):
+    def __init__(self, alpha=1, debug=DEBUG_DEFAULT, anneal_scheduler=None):
         super(alphaGraph, self).__init__(debug=DEBUG_DEFAULT)
         # add now
         self.debug = debug
@@ -39,6 +39,7 @@ class alphaGraph(Graph):
 
         self._factors = []
         self._alpha = alpha
+        self._anneal_scheduler=anneal_scheduler
 
     # def rv(self, name, n_opts, labels=[], meta={}, debug=DEBUG_DEFAULT):
     #     rv = RV(name, n_opts, labels, meta, debug)
@@ -61,7 +62,64 @@ class alphaGraph(Graph):
         self.add_factor(f)
         return f
 
+    def lbp(self, init=True, normalize=False, max_iters=LBP_MAX_ITERS,
+            progress=False, anneal=False):
+        '''
+        Loopy belief propagation.
+        FAQ:
+        -   Q: Do we have do updates in some specific order?
+            A: No.
+        -   Q: Can we intermix computing messages for Factor and RV nodes?
+            A: Yes.
+        -   Q: Do we have to make sure we only send messages on an edge once
+               messages from all other edges are received?
+            A: No. By sorting the nodes, we can kind of approximate this. But
+               this constraint is only something that matters if you want to
+               converge in 1 iteration on an acyclic graph.
+        -   Q: Do factors' potential functions change during (L)BP?
+            A: No. Only the messages change.
+        '''
+        # Sketch of algorithm:
+        # -------------------
+        # preprocessing:
+        # - sort nodes by number of edges
+        #
+        # note:
+        # - every time message sent, normalize if too large or small
+        #
+        # Algo:
+        # - initialize messages to 1
+        # - until convergence or max iters reached:
+        #     - for each node in sorted list (fewest edges to most):
+        #         - compute outgoing messages to neighbors
+        #         - check convergence of messages
 
+        nodes = self._sorted_nodes()
+
+        # Init if needed. (Don't if e.g. external func is managing iterations)
+        if init:
+            self.init_messages(nodes)
+
+        cur_iter, converged = 0, False
+        while cur_iter < max_iters and not converged and not E_STOP:
+            # Bookkeeping
+            
+
+            if progress:
+                # self.print_messages(nodes)
+                logger.debug('\titeration %d / %d (max)', cur_iter, max_iters)
+            
+            # ToDo:add the scheduler here for assigning alpha value at each iteration
+            if self._anneal_scheduler != None and anneal == True:
+                self._alpha = self._anneal_scheduler(global_step=cur_iter)
+            # Comptue outgoing messages:
+            converged = True
+            for n in nodes:
+                n_converged = n.recompute_outgoing(normalize=normalize)
+                converged = converged and n_converged
+            # increase iteration number 
+            cur_iter += 1
+        return cur_iter, converged
 
 class Factor(bpFactor):
     def __init__(self, rvs, alpha, name='', potential=None, meta={},
