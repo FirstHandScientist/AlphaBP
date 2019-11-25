@@ -1,7 +1,6 @@
 import numpy as np
 import multiprocessing as mp
 from tqdm import tqdm
-from multiprocessing import Pool
 import matplotlib
 matplotlib.rcParams.update({'font.size': 18})
 
@@ -27,12 +26,12 @@ from utils import channel_component, sampling_noise, sampling_signal, sampling_H
 class hparam(object):
     num_tx = 4
     num_rx = 4
-    soucrce_prior = [0.5, 0.5]
+    soucrce_prior = [0.25, 0.25, 0.25, 0.25]
     signal_var = 1
     snr = np.linspace(1, 40, 10)
     monte = 5000
     power_n = 4./3
-    constellation = [int(-1), int(1)]
+    constellation = [int(-3), int(-1), int(1),int(-3)]
 
     EC_beta = 0.2
     alpha = None
@@ -68,6 +67,7 @@ class hparam(object):
     algos = {"MMSE": {"detector": MMSE, "legend": "MMSE"},
              "ML": {"detector": ML, "legend": "MAP"},
              "LoopyBP": {"detector": LoopyBP, "legend": "BP"},
+             "alphaBP": {"detector": AlphaBP, "alpha": 0.5, "legend":r'$\alpha$-BP, 0.5'},
              "MMSEalphaBP, 0.3": {"detector": MMSEalphaBP, "alpha": 0.3, "legend":r'$\alpha$-BP+MMSE, 0.3'},
              "MMSEalphaBP, 0.5": {"detector": MMSEalphaBP, "alpha": 0.5, "legend":r'$\alpha$-BP+MMSE, 0.5'},
              "MMSEalphaBP, 0.7": {"detector": MMSEalphaBP, "alpha": 0.7, "legend":r'$\alpha$-BP+MMSE, 0.7'},
@@ -140,57 +140,44 @@ def task(snr):
  
     return performance
 
-results = []
-def collect_result(result):
-    global results
-    results.append(result)
+if __name__ == "__main__":
+    # begin the parallel computation
+    pool = mp.Pool(mp.cpu_count())
+    results = pool.map(task, list(hparam.snr))
+    pool.close()
+    pool.join()
 
-pool = mp.Pool(mp.cpu_count())
+    performance = defaultdict(list)
 
+    #for the_result in RESULTS:
+    for snr in list(hparam.snr):
+        for the_result in results:
+            if the_result["snr"] == snr:
+                for key, _ in hparam.algos.items():                
+                    performance[key].append( the_result[key] )
 
-# RESULTS = Parallel(n_jobs=1, pre_dispatch="all", verbose=11, backend="threading")(map(delayed(worker), list(hparam.snr)))
-# for snr in list(hparam.snr):
-#     pool.apply_async(task, args=(snr), callback=collect_result)
-# task(hparam.snr[1])
-results = pool.map(task, list(hparam.snr))
+    # save the experimental results    
+    with open("figures/prior_mmse_alpha_compare.pkl", 'wb') as handle:
+        pickle.dump(performance, handle)
 
-
-#results = [r for r in result_objects]
-
-pool.close()
-
-
-performance = defaultdict(list)
-
-#for the_result in RESULTS:
-for snr in list(hparam.snr):
-    for the_result in results:
-        if the_result["snr"] == snr:
-            for key, _ in hparam.algos.items():                
-                performance[key].append( the_result[key] )
-
-# save the experimental results    
-with open("figures/prior_mmse_alpha_compare.pkl", 'wb') as handle:
-    pickle.dump(performance, handle)
-    
-# for snr in hparam.snr:
+    # for snr in hparam.snr:
 
 
-marker_list = ["o", "<", "+", ">", "v", "1", "2", "3", "8", "*", "h", "d", "D"]
-iter_marker_list = iter(marker_list)
-fig, ax = plt.subplots()
-for key, method in hparam.algos.items():
-    ax.semilogy(hparam.snr, performance[key],
-                # label = key + "_Iteration:{}".format(hparam.iter_num[key]) if "MMSE" not in key else "MMSE",
-                label = method['legend'],
-                marker=next(iter_marker_list))
-    
-ax.legend(loc="best", fontsize='small', ncol=2)
-ax.set(xlabel="Ratio of Signal to Noise Variance", ylabel="Symbol Error")
-ax.grid()
-fig.savefig("figures/prior_mmse_alpha_compare.pdf")
-#plt.show()
+    marker_list = ["o", "<", "+", ">", "v", "1", "2", "3", "8", "*", "h", "d", "D"]
+    iter_marker_list = iter(marker_list)
+    fig, ax = plt.subplots()
+    for key, method in hparam.algos.items():
+        ax.semilogy(hparam.snr, performance[key],
+                    # label = key + "_Iteration:{}".format(hparam.iter_num[key]) if "MMSE" not in key else "MMSE",
+                    label = method['legend'],
+                    marker=next(iter_marker_list))
 
-        
-        
+    ax.legend(loc="best", fontsize='small', ncol=2)
+    ax.set(xlabel="Ratio of Signal to Noise Variance", ylabel="Symbol Error")
+    ax.grid()
+    fig.savefig("figures/non_binary_prior_mmse_alpha_compare.pdf")
+    #plt.show()
+
+
+
 
