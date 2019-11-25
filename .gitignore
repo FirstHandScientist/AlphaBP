@@ -1,0 +1,13 @@
+# manuscript
+manuscript
+main.*
+myref.bib
+mystyle.sty
+
+# poster
+poster
+poster.zip
+#  pyc files
+*.pyc
+
+
