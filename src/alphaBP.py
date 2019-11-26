@@ -112,6 +112,9 @@ class alphaGraph(Graph):
             # ToDo:add the scheduler here for assigning alpha value at each iteration
             if self._anneal_scheduler != None and anneal == True:
                 self._alpha = self._anneal_scheduler(global_step=cur_iter)
+                # set the factor's _alpha to corresponding value
+                self._update_factor_alpha(alpha=self._alpha)
+                
             # Comptue outgoing messages:
             converged = True
             for n in nodes:
@@ -120,6 +123,13 @@ class alphaGraph(Graph):
             # increase iteration number 
             cur_iter += 1
         return cur_iter, converged
+    
+    def _update_factor_alpha(self, alpha):
+        '''Update all factors' _alpha value to the given value'''
+        for factor in self._factors:
+            factor._alpha = alpha
+        return self
+    
 
 class Factor(bpFactor):
     def __init__(self, rvs, alpha, name='', potential=None, meta={},
