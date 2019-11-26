@@ -4,6 +4,7 @@ import factorgraph as fg
 import scipy.sparse.csgraph as csgraph
 import maxsum
 import alphaBP
+import dampedBP
 import variationalBP
 from scipy.stats import multivariate_normal
 
@@ -208,6 +209,19 @@ class AlphaBP(LoopyBP):
         self.n_symbol = hparam.num_tx * 2
         # set the graph
         self.graph = alphaBP.alphaGraph(alpha=hparam.alpha)
+        # add the discrete random variables to graph
+        for idx in range(hparam.num_tx * 2):
+            self.graph.rv("x{}".format(idx), len(self.constellation))
+
+class DampBP(LoopyBP):
+    def __init__(self, noise_var, hparam):
+        self.hparam = hparam
+        # get the constellation
+        self.constellation = hparam.constellation
+
+        self.n_symbol = hparam.num_tx * 2
+        # set the graph
+        self.graph = dampedBP.dampedGraph(eta=hparam.eta)
         # add the discrete random variables to graph
         for idx in range(hparam.num_tx * 2):
             self.graph.rv("x{}".format(idx), len(self.constellation))
