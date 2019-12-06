@@ -15,5 +15,7 @@ $ git checkout draft_aistats
     -[x] convergence proof for binary case
     -[x] corresponding experiments
     -[ ] convergence proof for general MRF case
+    -[ ] linear control to tune alpha parameters
+    -[ ] bring graph neural network in alpha-bp framework
     -[ ] experiments
 
