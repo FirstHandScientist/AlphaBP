@@ -134,6 +134,13 @@ class Factor(bpFactor):
 
         # (Product:) Multiply RV messages into "belief".
         incoming = []
+        # for unary factor, message is constant, i.e. its own potential
+        if len(self.get_rvs()) == 1 :
+            self._outgoing[0] = self._potential.copy()
+            convg = True
+
+            return convg
+
         # for alpha type of message, raise power alpha
         belief = np.power(self._potential.copy(), 1 / self._weight)
         for i, rv in enumerate(self._rvs):

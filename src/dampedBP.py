@@ -74,6 +74,13 @@ class Factor(bpFactor):
 
         # (Product:) Multiply RV messages into "belief".
         incoming = []
+        # for unary factor, message is constant, i.e. its own potential
+        if len(self.get_rvs()) == 1 :
+            self._outgoing[0] = self._potential.copy()
+            convg = True
+
+            return convg
+
         belief = self._potential.copy()
         for i, rv in enumerate(self._rvs):
             m = rv.get_outgoing_for(self)
