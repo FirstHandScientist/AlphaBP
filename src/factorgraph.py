@@ -670,6 +670,18 @@ class RV(object):
             if f == fac:
                 return self._outgoing[i]
 
+    
+    def get_unary_incoming(self):
+        '''
+        Find the message from unary factor to the variable node
+        '''
+        for i, f in enumerate(self._factors):
+            if len(f.get_rvs()) ==1:
+                msg = f.get_outgoing_for(self)
+                break
+        
+        return msg
+
     def get_belief(self):
         '''
         Returns the belief (AKA marginal probability) of this RV, using its
