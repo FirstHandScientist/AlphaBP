@@ -5,6 +5,8 @@ import scipy.sparse.csgraph as csgraph
 import maxsum
 import alphaBP
 import dampedBP
+import tree_reweight_BP
+
 import variationalBP
 from scipy.stats import multivariate_normal
 
@@ -254,7 +256,57 @@ class AnnealAlphaBP(AlphaBP):
 
         # run BP with anneal as true
         iters, converged = self.graph.lbp(normalize=True, anneal=True)
+
+class TreeReweightBP(LoopyBP):
+    def __init__(self, noise_var, hparam):
+        self.hparam = hparam
+        # get the constellation
+        self.constellation = hparam.constellation
+        # For complete graph, the appear rate of each edge is a constant
+        self.weight = hparam.TBP_rate 
+        self.n_symbol = hparam.num_tx * 2
+        # set the graph
+        self.graph = tree_reweight_BP.tree_reweight_Graph(weight=self.weight)
+
+        self.unary_factors = []
+        # add the discrete random variables to graph
+        for idx in range(hparam.num_tx * 2):
+            self.graph.rv("x{}".format(idx), len(self.constellation))
+
+
+
+    def set_potential(self, h_matrix, observation, noise_var):
+        s = np.matmul(h_matrix.T, h_matrix)
+        for var_idx in range(h_matrix.shape[1]):
+            # set the first type of potentials, the standalone potentials
+            f_potential = (-0.5 *s[var_idx, var_idx] * np.power(self.constellation, 2) + h_matrix[:, var_idx].dot(observation) * np.array(self.constellation))/noise_var
+            f_potential = f_potential - f_potential.max()
+            f_x_i = np.exp(f_potential )
+            self.unary_factors.append(f_x_i)
+            self.graph.factor(["x{}".format(var_idx)], potential=f_x_i)
+
+        for var_idx in range(h_matrix.shape[1]):
+
+            for var_jdx in range(var_idx + 1, h_matrix.shape[1]):
+                # set the cross potentials
+                t_potential = - np.array(self.constellation)[None,:].T * s[var_idx, var_jdx] * np.array(self.constellation) / noise_var
+                t_potential = t_potential - t_potential.max()
+                t_ij = np.exp(t_potential)
+                self.graph.factor(["x{}".format(var_jdx), "x{}".format(var_idx)],
+                                  potential=t_ij)
+
+    def detect_signal_by_mean(self):
+        estimated_signal = []
+        rv_marginals = dict(self.graph.rv_marginals())
+        for idx in range(self.n_symbol):
+            x_marginal = rv_marginals["x{}".format(idx)]
+            beliefs = x_marginal / self.unary_factors[idx]
+            x_marginal = np.power(beliefs, self.weight) * self.unary_factors[idx]
+            estimated_signal.append(self.constellation[x_marginal.argmax()])
+        return estimated_signal
+
     
+
 
 class StochasticBP(AlphaBP):
     def __init__(self, noise_var, hparam):
