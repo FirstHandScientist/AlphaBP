@@ -17,7 +17,7 @@ from functools import partial
 # importing from src
 import sys
 sys.path.append("./src")
-from modules import MMSE, AlphaBP, MMSEalphaBP, ML, LoopyBP, DampBP
+from modules import MMSE, AlphaBP, MMSEalphaBP, ML, LoopyBP, DampBP, TreeReweightBP
 from utils import channel_component, sampling_noise, sampling_signal, sampling_H,real2complex
 from utils import step_rate_decay
 
@@ -38,10 +38,12 @@ class hparam(object):
 
     EC_beta = 0.2
     alpha = None
+    TBP_rate  = 0.25 # the computed appearance probability of an edges in tree reweighted graphs
     ############## observer effect of Alpha for linear system  ########
     algos = {"MMSE": {"detector": MMSE, "legend": "MMSE"},
              "ML": {"detector": ML, "legend": "MAP"},
              "LoopyBP": {"detector": LoopyBP, "legend": "BP"},
+             "TreeReweightBP": {"detector": TreeReweightBP, "legend": "TBP"},
              "DampBP, 0.5": {"detector": DampBP, \
                                       "eta": 0.5, \
                                       "legend":r'Damped-BP, 0.5'},
@@ -131,7 +133,7 @@ def task(snr):
 
 if __name__ == "__main__":
     
-    # resutls = [task(hparam.snr[1])]
+    # resutls = [task(hparam.snr[2])]
     # results = [{"snr": snr, "model":task(snr) } for snr in list(hparam.snr)]
 
     pool = mp.Pool(mp.cpu_count())
