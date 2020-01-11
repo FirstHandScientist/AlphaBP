@@ -371,9 +371,12 @@ class TreeReweightBP(LoopyBP):
         rv_marginals = dict(self.graph.rv_marginals())
         for idx in range(self.n_symbol):
             x_marginal = rv_marginals["x{}".format(idx)]
-            beliefs = x_marginal / self.unary_factors[idx]
-            x_marginal = np.power(beliefs, self.weight) * self.unary_factors[idx]
+            unary_potential = self.unary_factors[idx].copy()
+            unary_potential = unary_potential / unary_potential.sum()
+            beliefs = x_marginal / unary_potential
+            x_marginal = np.power(beliefs, self.weight) * unary_potential
             estimated_signal.append(self.constellation[x_marginal.argmax()])
+
         return estimated_signal
 
     
