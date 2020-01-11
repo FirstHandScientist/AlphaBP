@@ -150,6 +150,76 @@ class EP(object):
         idx_max = np.argmax( p_list )
         return proposals[idx_max]
 
+class NaiveMF(object):
+    """
+    The naive mean field method.
+    """
+    def __init__(self, noise_var, hparam):
+        # get the constellation
+        self.constellation = hparam.constellation
+        self.hparam = hparam
+        self.n_symbol = hparam.num_tx * 2 # the number of vairiables
+        self._init_potential()
+
+    def _init_potential(self, h_matrix, observation, noise_var):
+        # 1 * n  
+        self.unary = np.matul(h_matrix.T, observation) / noise_var
+        # n * n
+        self.binary =  - 0.5 * np.matmul(h_matrix.T, h_matrix) / noise_var
+        
+
+    def mf_update(self, num_iters = 1, mean = None):
+        # mean : n ** 2 of mean-field marginals
+        binary = self.binary
+        unary = self.unary
+
+        if mean is None:
+            mean = np.ones_like(self.unary) * 0.5
+        for _ in range(num_iters):
+            for n in np.random.permutation(range(self.n**2)):
+                message = 0
+                for k in range(self.n_symbol):
+                    # fully connected graph, rest nodes all are neighbors
+                    binary_nk = binary[n][k]
+                    binary_nk = binary_nk
+                    mean_k = mean[k]*2-1
+                    message += mean_k*binary_nk
+                    
+                message += unary[n]
+                # sigmoid
+                mean[n] = 1 / ( 1 + np.exp(-2*message))
+                
+        return mean
+
+    def fit(self, channel, noise_var, noised_signal, stop_iter=50):
+        """ set potentials and run message passing"""
+        self.set_potential(h_matrix=channel,
+                           observation=noised_signal,
+                           noise_var=noise_var)
+        unary_marginals_mf = np.ones(self.n_symbol) * 0.5
+        for _ in range(stop_iter):
+            unary_marginals_mf_new = self.mf_update(1, unary_marginals_mf)
+            if np.linalg.norm(unary_marginals_mf-unary_marginals_mf_new) < 1e-6:
+                break
+
+            unary_marginals_mf = unary_marginals_mf_new.copy()
+            
+        self.mu = unary_marginals_mf_new
+        # run BP
+        iters, converged = self.graph.lbp(normalize=True)
+        
+    def detect_signal_by_mean(self):
+        estimated_signal = []
+        for mu in self.mu:
+            if mu >= 0.5:
+                estimated_signal.append(self.constellation[1])
+            else:
+                estimated_signal.append(self.constellation[0])
+            
+        return estimated_signal
+
+    
+
 class LoopyBP(object):
 
     def __init__(self, noise_var, hparam):
