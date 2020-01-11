@@ -159,11 +159,11 @@ class NaiveMF(object):
         self.constellation = hparam.constellation
         self.hparam = hparam
         self.n_symbol = hparam.num_tx * 2 # the number of vairiables
-        self._init_potential()
+
 
     def _init_potential(self, h_matrix, observation, noise_var):
         # 1 * n  
-        self.unary = np.matul(h_matrix.T, observation) / noise_var
+        self.unary = np.matmul(h_matrix.T, observation) / noise_var
         # n * n
         self.binary =  - 0.5 * np.matmul(h_matrix.T, h_matrix) / noise_var
         
@@ -176,7 +176,7 @@ class NaiveMF(object):
         if mean is None:
             mean = np.ones_like(self.unary) * 0.5
         for _ in range(num_iters):
-            for n in np.random.permutation(range(self.n**2)):
+            for n in np.random.permutation(range(self.n_symbol)):
                 message = 0
                 for k in range(self.n_symbol):
                     # fully connected graph, rest nodes all are neighbors
@@ -191,22 +191,23 @@ class NaiveMF(object):
                 
         return mean
 
-    def fit(self, channel, noise_var, noised_signal, stop_iter=50):
+    def fit(self, channel, noise_var, noised_signal, stop_iter=100):
         """ set potentials and run message passing"""
-        self.set_potential(h_matrix=channel,
-                           observation=noised_signal,
-                           noise_var=noise_var)
+        self._init_potential(h_matrix=channel,
+                             observation=noised_signal,
+                             noise_var=noise_var)
         unary_marginals_mf = np.ones(self.n_symbol) * 0.5
-        for _ in range(stop_iter):
-            unary_marginals_mf_new = self.mf_update(1, unary_marginals_mf)
+        for i in range(stop_iter):
+            unary_marginals_mf_new = self.mf_update(1, unary_marginals_mf.copy())
             if np.linalg.norm(unary_marginals_mf-unary_marginals_mf_new) < 1e-6:
                 break
 
             unary_marginals_mf = unary_marginals_mf_new.copy()
-            
+
+        
         self.mu = unary_marginals_mf_new
         # run BP
-        iters, converged = self.graph.lbp(normalize=True)
+
         
     def detect_signal_by_mean(self):
         estimated_signal = []
@@ -254,14 +255,14 @@ class LoopyBP(object):
                                   potential=t_ij)
         
     
-    def fit(self, channel, noise_var, noised_signal, stop_iter=10):
+    def fit(self, channel, noise_var, noised_signal, stop_iter=100):
         """ set potentials and run message passing"""
         self.set_potential(h_matrix=channel,
                            observation=noised_signal,
                            noise_var=noise_var)
 
         # run BP
-        iters, converged = self.graph.lbp(normalize=True)
+        iters, converged = self.graph.lbp(normalize=True, max_iters=stop_iter)
         
     def detect_signal_by_mean(self):
         estimated_signal = []
@@ -325,7 +326,7 @@ class AnnealAlphaBP(AlphaBP):
                            noise_var=noise_var)
 
         # run BP with anneal as true
-        iters, converged = self.graph.lbp(normalize=True, anneal=True)
+        iters, converged = self.graph.lbp(normalize=True, max_iters=stop_iter, anneal=True)
 
 class TreeReweightBP(LoopyBP):
     def __init__(self, noise_var, hparam):
