@@ -17,7 +17,7 @@ from functools import partial
 # importing from src
 import sys
 sys.path.append("./src")
-from modules import MMSE, AlphaBP, MMSEalphaBP, ML, LoopyBP, DampBP, TreeReweightBP
+from modules import MMSE, AlphaBP, MMSEalphaBP, ML, LoopyBP, DampBP, TreeReweightBP, NaiveMF
 from utils import channel_component, sampling_noise, sampling_signal, sampling_H,real2complex
 from utils import step_rate_decay
 
@@ -55,6 +55,11 @@ class hparam(object):
              "MMSEalphaBP, 0.5": {"detector": MMSEalphaBP, "alpha": 0.5, "legend":r'$\alpha$-BP+MMSE, 0.5'},
 
     }
+    algos = {"MMSE": {"detector": MMSE, "legend": "MMSE"},
+             "ML": {"detector": ML, "legend": "MAP"},
+             "NMF": {"detector": NaiveMF, "legend": "MF"},
+             }
+    
 
     iter_num = {"EP": 10,
                 "EC": 50,
@@ -111,7 +116,7 @@ def task(snr):
                 detector.fit(channel=channel,
                              noise_var=noise_var,
                              noised_signal=noised_signal,
-                             stop_iter=50)
+                             stop_iter=200)
                 
                         
                 estimated_symbol = detector.detect_signal_by_mean()
@@ -133,7 +138,7 @@ def task(snr):
 
 if __name__ == "__main__":
     
-    # resutls = [task(hparam.snr[2])]
+    resutls = [task(hparam.snr[2])]
     # results = [{"snr": snr, "model":task(snr) } for snr in list(hparam.snr)]
 
     pool = mp.Pool(mp.cpu_count())
