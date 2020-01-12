@@ -42,23 +42,16 @@ class hparam(object):
     ############## observer effect of Alpha for linear system  ########
     algos = {"MMSE": {"detector": MMSE, "legend": "MMSE"},
              "ML": {"detector": ML, "legend": "MAP"},
+             "NMF": {"detector": NaiveMF, "legend": "MF"},
              "LoopyBP": {"detector": LoopyBP, "legend": "BP"},
              "TreeReweightBP": {"detector": TreeReweightBP, "legend": "TBP"},
              "DampBP, 0.5": {"detector": DampBP, \
                                       "eta": 0.5, \
-                                      "legend":r'Damped-BP, 0.5'},
-             "DampBP, 0.7": {"detector": DampBP, \
-                                      "eta": 0.7, \
-                                      "legend":r'Damped-BP, 0.7'},
-             "AlphaBP, 0.5": {"detector": AlphaBP, "alpha": 0.5, "legend":r'$\alpha$-BP, 0.5'},
-             "AlphaBP, 0.7": {"detector": AlphaBP, "alpha": 0.7, "legend":r'$\alpha$-BP, 0.7'},
-             "MMSEalphaBP, 0.5": {"detector": MMSEalphaBP, "alpha": 0.5, "legend":r'$\alpha$-BP+MMSE, 0.5'},
+                                      "legend":r'Damped-BP'},
+             "AlphaBP, 0.5": {"detector": AlphaBP, "alpha": 0.5, "legend":r'$\alpha$-BP'},
+             "MMSEalphaBP, 0.5": {"detector": MMSEalphaBP, "alpha": 0.5, "legend":r'$\alpha$-BP+MMSE'},
 
     }
-    algos = {"MMSE": {"detector": MMSE, "legend": "MMSE"},
-             "ML": {"detector": ML, "legend": "MAP"},
-             "NMF": {"detector": NaiveMF, "legend": "MF"},
-             }
     
 
     iter_num = {"EP": 10,
@@ -116,7 +109,7 @@ def task(snr):
                 detector.fit(channel=channel,
                              noise_var=noise_var,
                              noised_signal=noised_signal,
-                             stop_iter=200)
+                             stop_iter=100)
                 
                         
                 estimated_symbol = detector.detect_signal_by_mean()
@@ -138,7 +131,7 @@ def task(snr):
 
 if __name__ == "__main__":
     
-    resutls = [task(hparam.snr[2])]
+    # resutls = [task(hparam.snr[2])]
     # results = [{"snr": snr, "model":task(snr) } for snr in list(hparam.snr)]
 
     pool = mp.Pool(mp.cpu_count())
@@ -161,7 +154,7 @@ if __name__ == "__main__":
     # for snr in hparam.snr:
 
     # save the experimental results    
-    with open("figures/damped_compare.pkl", 'wb') as handle:
+    with open("figures/mf_tbp_compare.pkl", 'wb') as handle:
         pickle.dump(performance, handle)
 
     marker_list = ["o", "<", "+", ">", "v", "1", "2", "3", "8", "*", "h", "d", "D"]
@@ -177,7 +170,7 @@ if __name__ == "__main__":
     ax.set(xlabel="Ratio of Signal to Noise Variance", ylabel="Symbol Error")
     plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
     ax.grid()
-    fig.savefig("figures/damped_compare.pdf")
+    fig.savefig("figures/mf_tbp_compare.pdf")
     #plt.show()
 
 
