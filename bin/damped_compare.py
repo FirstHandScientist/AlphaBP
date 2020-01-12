@@ -6,14 +6,14 @@ import matplotlib
 matplotlib.rcParams.update({'font.size': 18})
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
+import pandas
 import itertools
 from collections import defaultdict
 import pickle
 from joblib import Parallel, delayed
 from scipy.stats import multivariate_normal
 from functools import partial
-
+import time
 # importing from src
 import sys
 sys.path.append("./src")
@@ -27,12 +27,13 @@ from utils import step_rate_decay
 
 # configuration
 class hparam(object):
+    timing = True
     num_tx = 4
     num_rx = 4
     soucrce_prior = [0.5, 0.5]
     signal_var = 1
     snr = np.linspace(1, 40, 10)
-    monte = 50
+    monte = 100
     power_n = 4./3
     constellation = [int(-1), int(1)]
 
@@ -53,7 +54,6 @@ class hparam(object):
 
     }
     
-
     iter_num = {"EP": 10,
                 "EC": 50,
                 "LoopyBP": 50,
@@ -85,6 +85,7 @@ def task(snr):
         channel = sampling_H(hparam)
         noised_signal = np.dot(channel,x) + noise
         for key, method in hparam.algos.items():
+            start_time = time.time()
             if key is "MMSE" or key is "ML":
                 #### mes detection
                 detector = method["detector"](hparam)
@@ -119,12 +120,21 @@ def task(snr):
             est_complex_symbol = real2complex(estimated_symbol)
             error = np.sum(true_symbol != est_complex_symbol)
             
-            tmp[key].append(error)
+            end_time = time.time()
+            if not hparam.timing:
+                tmp[key].append(error)
+            else:
+                tmp[key].append(end_time - start_time)
+
 
     performance = {"snr": snr}
     for key, method in hparam.algos.items():
         #method["ser"].append( np.mean(tmp[key])/hparam.num_tx )
-        performance[key] =  np.mean(np.array(tmp[key]))/hparam.num_tx
+        if not hparam.timing:
+            performance[key] =  np.mean(np.array(tmp[key]))/hparam.num_tx
+        else:
+            performance[key] =  tmp[key]
+
 
  
     return performance
@@ -150,7 +160,13 @@ if __name__ == "__main__":
 
 
 
+    if hparam.timing:
+        perf_timing = {}
+        for method, value in performance.items():
+            perf_timing[method] = {'mean': np.array(value).mean(), 'std': np.array(value).std()}
 
+        print(pandas.DataFrame.from_dict(perf_timing))
+        sys.exit(0)
     # for snr in hparam.snr:
 
     # save the experimental results    
