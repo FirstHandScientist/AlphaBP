@@ -1,14 +1,5 @@
 # Alpha Belief Propagation
 
-## Theory Part
-For development, please read [analysis for alpha BP](./manuscript/README.md).
-For theoretical analysis switch into branch "draft_aistats" online or
-``` bash
-$ git checkout draft_aistats
-```
-locally
-, read [manuscript](./manuscript/main.pdf).
-
 ## Environment
 Create a virtual environment with a python2 interpreter at 'path/to/your/evn/'
 ```bash
