@@ -36,7 +36,7 @@ Notes:
                         Thus, we write f_a(x_a) for convenience to show exactly
                         what f_a operates on.
 
-author: mbforbes
+
 '''
 
 # Imports
