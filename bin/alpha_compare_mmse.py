@@ -26,12 +26,12 @@ from utils import channel_component, sampling_noise, sampling_signal, sampling_H
 class hparam(object):
     num_tx = 4
     num_rx = 4
-    soucrce_prior = [0.25, 0.25, 0.25, 0.25]
+    soucrce_prior = [0.5, 0.5]
     signal_var = 1
     snr = np.linspace(1, 40, 10)
     monte = 5000
     power_n = 4./3
-    constellation = [int(-3), int(-1), int(1),int(-3)]
+    constellation = [int(-1), int(1)]
 
     EC_beta = 0.2
     alpha = None
@@ -175,7 +175,7 @@ if __name__ == "__main__":
     ax.legend(loc="best", fontsize='small', ncol=2)
     ax.set(xlabel="Ratio of Signal to Noise Variance", ylabel="Symbol Error")
     ax.grid()
-    fig.savefig("figures/non_binary_prior_mmse_alpha_compare.pdf")
+    fig.savefig("figures/prior_mmse_alpha_compare.pdf")
     #plt.show()
 
 
