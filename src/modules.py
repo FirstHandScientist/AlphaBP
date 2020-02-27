@@ -239,7 +239,7 @@ class LoopyBP(object):
         for var_idx in range(h_matrix.shape[1]):
             # set the first type of potentials, the standalone potentials
             f_potential = (-0.5 *s[var_idx, var_idx] * np.power(self.constellation, 2) + h_matrix[:, var_idx].dot(observation) * np.array(self.constellation))/noise_var
-            f_potential = f_potential - f_potential.max()
+            
             f_x_i = np.exp(f_potential )
             self.graph.factor(["x{}".format(var_idx)],
                               potential=f_x_i)
@@ -249,7 +249,7 @@ class LoopyBP(object):
             for var_jdx in range(var_idx + 1, h_matrix.shape[1]):
                 # set the cross potentials
                 t_potential = - np.array(self.constellation)[None,:].T * s[var_idx, var_jdx] * np.array(self.constellation) / noise_var
-                t_potential = t_potential - t_potential.max()
+                
                 t_ij = np.exp(t_potential)
                 self.graph.factor(["x{}".format(var_jdx), "x{}".format(var_idx)],
                                   potential=t_ij)
@@ -351,7 +351,7 @@ class TreeReweightBP(LoopyBP):
         for var_idx in range(h_matrix.shape[1]):
             # set the first type of potentials, the standalone potentials
             f_potential = (-0.5 *s[var_idx, var_idx] * np.power(self.constellation, 2) + h_matrix[:, var_idx].dot(observation) * np.array(self.constellation))/noise_var
-            f_potential = f_potential - f_potential.max()
+            
             f_x_i = np.exp(f_potential )
             self.unary_factors.append(f_x_i)
             self.graph.factor(["x{}".format(var_idx)], potential=f_x_i)
@@ -361,7 +361,7 @@ class TreeReweightBP(LoopyBP):
             for var_jdx in range(var_idx + 1, h_matrix.shape[1]):
                 # set the cross potentials
                 t_potential = - np.array(self.constellation)[None,:].T * s[var_idx, var_jdx] * np.array(self.constellation) / noise_var
-                t_potential = t_potential - t_potential.max()
+                
                 t_ij = np.exp(t_potential)
                 self.graph.factor(["x{}".format(var_jdx), "x{}".format(var_idx)],
                                   potential=t_ij)
@@ -418,7 +418,7 @@ class StochasticBP(AlphaBP):
             # set the first type of potentials, the standalone potentials
             f_potential = (-0.5 *s[var_idx, var_idx] * np.power(self.constellation, 2)
                              + h_matrix[:, var_idx].dot(observation) * np.array(self.constellation))/noise_var
-            f_potential = f_potential - f_potential.max()
+            
             f_x_i = np.exp( f_potential)
             f_x_i = f_x_i/f_x_i.sum()
             if not self.first_iter_flag:
@@ -441,7 +441,7 @@ class StochasticBP(AlphaBP):
                 
                 if not np.all(test_condition):
                     t_potential = - np.array(self.constellation)[None,:].T * s[var_idx, var_jdx] * np.array(self.constellation) / noise_var
-                    t_potential = t_potential - t_potential.max()
+                    
                     t_ij = np.exp(t_potential)
                     t_ij = t_ij/t_ij.sum()
                     subgraph.factor(["x{}".format(var_jdx), "x{}".format(var_idx)],
@@ -496,12 +496,12 @@ class MMSEalphaBP(AlphaBP):
             # set the first type of potentials, the standalone potentials
             f_potential = (-0.5 *s[var_idx, var_idx] * np.power(self.constellation, 2)
                              + h_matrix[:, var_idx].dot(observation) * np.array(self.constellation))/noise_var
-            f_potential = f_potential - f_potential.max()
+            
             f_x_i = np.exp( f_potential )
             
             p_potential = -0.5 * np.power(self.constellation - prior_u[var_idx], 2) \
                              / (inv[var_idx, var_idx] * noise_var) 
-            p_potential = p_potential - p_potential.max()
+            
             prior_i = np.exp(p_potential)
             self.graph.factor(["x{}".format(var_idx)],
                               potential=f_x_i * prior_i)
@@ -512,7 +512,7 @@ class MMSEalphaBP(AlphaBP):
             for var_jdx in range(var_idx + 1, h_matrix.shape[1]):
                 # set the cross potentials
                 t_potential = - np.array(self.constellation)[None,:].T * s[var_idx, var_jdx] * np.array(self.constellation) / noise_var
-                t_potential = t_potential - t_potential.max()
+                
                 t_ij = np.exp(t_potential)
                 self.graph.factor(["x{}".format(var_jdx), "x{}".format(var_idx)],
                                   potential=t_ij)
