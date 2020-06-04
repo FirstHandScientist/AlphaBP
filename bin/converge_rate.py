@@ -60,7 +60,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     stn = float(sys.argv[1])
-    erp = 0.4
+    erp = 0.2
     guarantee_cnvg = True if sys.argv[2] == 'true' else False
 
     for monte in range(hparam.monte):

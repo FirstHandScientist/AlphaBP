@@ -37,6 +37,7 @@ class hparam(object):
     # }
     algos = {"AlphaBP, 0.5, ep0.2": {"detector": AlphaBP, "alpha": 0.5, "erp": 0.2, "legend": r'$\alpha=$'+'{}'.format(0.5)+',$\gamma=$'+'{}'.format(0.2) },
              "AlphaBP, 0.5, ep0.4": {"detector": AlphaBP, "alpha": 0.5, "erp": 0.4, "legend": r'$\alpha=$'+'{}'.format(0.5)+',$\gamma=$'+'{}'.format(0.4) },
+             "AlphaBP, 1, ep0.4": {"detector": AlphaBP, "alpha": 1, "erp": 0.4, "legend": r'$\alpha=$'+'{}'.format(1)+',$\gamma=$'+'{}'.format(0.4) },
              "AlphaBP, 1, ep0.2": {"detector": AlphaBP, "alpha": 1, "erp": 0.2, "legend": r'$\alpha=$'+'{}'.format(1)+'$,\gamma=$'+'{}'.format(0.2) }
     }
     
