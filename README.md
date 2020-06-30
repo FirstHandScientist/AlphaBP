@@ -1,5 +1,5 @@
 # Alpha Belief Propagation
-
+Code for our paper: [$\alpha$ Belief Propagation for Approximate Inference](https://arxiv.org/abs/2006.15363)
 ## Environment
 Create a virtual environment with a python2 interpreter at 'path/to/your/evn/'
 ```bash
